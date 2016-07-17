@@ -1,0 +1,4 @@
+*.pyc
+images
+.idea
+*ghostdriver.log
