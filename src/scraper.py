@@ -48,7 +48,7 @@ def scrape_image_urls(keywords, number=None, face_only=False, safe_mode=False, p
             "--proxy=" + proxy,
             "--proxy-type=" + proxy_type,
             ]
-    driver = webdriver.PhantomJS(executable_path="/opt/phantomjs-2.1.1/bin/phantomjs",
+    driver = webdriver.PhantomJS(executable_path="phantomjs",
                                  service_args=phantomjs_args, desired_capabilities=dcap)
     driver.set_window_size(10000, 7500)
     driver.get(query_url)
