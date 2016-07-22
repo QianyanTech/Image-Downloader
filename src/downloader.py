@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 import concurrent.futures
 import requests
@@ -5,10 +6,14 @@ import shutil
 import imghdr
 import os
 
+""" Download image according to given urls and automatically rename them in order. """
+
+__author__ = "Yabin Zheng ( sczhengyabin@hotmail.com )"
+
 
 headers = {
     'Connection': 'close',
-    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36'
+    'User-Agent': 'Chrome/51.0.2704.106'
 }
 
 
@@ -36,6 +41,14 @@ def download_image(image_url, dst_dir, file_name):
 
 
 def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50):
+    """
+    Download image according to given urls and automatically rename them in order.
+    :param image_urls: list of image urls
+    :param dst_dir: output the downloaded images to dst_dir
+    :param file_prefix: if set to "img", files will be in format "img_xxx.jpg"
+    :param concurrency: number of requests process simultaneously
+    :return: none
+    """
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
         futures = list()
         count = 0

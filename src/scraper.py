@@ -1,9 +1,14 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 from future.moves.urllib.parse import unquote
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 import time
 import re
+
+""" Scrape image urls of keywords from Google Image Search """
+
+__author__ = "Yabin Zheng ( sczhengyabin@hotmail.com )"
 
 
 dcap = dict(DesiredCapabilities.PHANTOMJS)
@@ -14,6 +19,16 @@ dcap["phantomjs.page.settings.userAgent"] = (
 
 
 def scrape_image_urls(keywords, number=None, face_only=False, safe_mode=False, proxy=None, proxy_type="http"):
+    """
+    Scrape image urls of keywords from Google Image Search
+    :param keywords: keywords you want to search
+    :param number: limit the max number of image urls the function output [1, 1000]
+    :param face_only: image type set to face only, provided by Google
+    :param safe_mode: switch for safe mode of Google Search
+    :param proxy: proxy address, socks5 example: 192.168.0.91:1080, http example: http://192.168.0.91:8080
+    :param proxy_type: socks5, http
+    :return: list of scraped image urls
+    """
     print("\nScraping From Google Image Search ...\n")
     print("Keywords:\t" + keywords)
     base_url = "https://www.google.com/search?tbm=isch"
@@ -22,6 +37,8 @@ def scrape_image_urls(keywords, number=None, face_only=False, safe_mode=False, p
     query_url = base_url + keywords_str
 
     if number is None:
+        if number > 1000:
+            number = 1000
         print("Number:\t\tNo limit")
     else:
         print("Number:\t\t" + str(number))
