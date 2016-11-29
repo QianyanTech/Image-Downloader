@@ -4,6 +4,7 @@ from urllib.parse import unquote, quote
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 import re
+import time
 
 """ Scrape image urls of keywords from Google Image Search """
 
@@ -16,11 +17,87 @@ dcap["phantomjs.page.settings.userAgent"] = (
 )
 
 
+def google_gen_query_url(keywords, face_only=False, safe_mode=False):
+    base_url = "https://www.google.com/search?tbm=isch"
+    keywords_str = "&q=" + quote(keywords)
+    query_url = base_url + keywords_str
+    if face_only is True:
+        query_url += "&tbs=itp:face"
+    if safe_mode is True:
+        query_url += "&safe=on"
+    else:
+        query_url += "&safe=off"
+    return query_url
+
+
+def google_image_url_from_webpage(driver):
+    time.sleep(10)
+    image_elements = driver.find_elements_by_class_name("rg_l")
+    image_urls = list()
+    url_pattern = "imgurl=\S*&amp;imgrefurl"
+
+    for image_element in image_elements:
+        outer_html = image_element.get_attribute("outerHTML")
+        re_group = re.search(url_pattern, outer_html)
+        if re_group is not None:
+            image_url = unquote(re_group.group()[7:-14])
+            image_urls.append(image_url)
+    return image_urls
+
+
+def bing_gen_query_url(keywords, face_only=False, safe_mode=False):
+    base_url = "https://www.bing.com/images/search?"
+    keywords_str = "&q=" + quote(keywords)
+    query_url = base_url + keywords_str
+    if face_only is True:
+        query_url += "&qft=+filterui:face-face"
+    return query_url
+
+
+def bing_image_url_from_webpage(driver):
+    time.sleep(10)
+    parents = driver.find_elements_by_class_name("dg_u")
+    image_elements = []
+    for parent in parents:
+        image_elements.append(parent.find_element_by_tag_name("a"))
+    image_urls = list()
+    url_pattern = 'imgurl:&quot;\S*&quot;,tid'
+
+    for image_element in image_elements:
+        outer_html = image_element.get_attribute("outerHTML")
+        re_group = re.search(url_pattern, outer_html)
+        if re_group is not None:
+            image_url = unquote(re_group.group()[13:-10])
+            image_urls.append(image_url)
+    return image_urls
+
+
+def baidu_gen_query_url(keywords, face_only=False, safe_mode=False):
+    base_url = "https://image.baidu.com/search/index?tn=baiduimage"
+    keywords_str = "&word=" + quote(keywords)
+    query_url = base_url + keywords_str
+    if face_only is True:
+        query_url += "&face=1"
+    return query_url
+
+
+def baidu_image_url_from_webpage(driver):
+    time.sleep(10)
+    image_elements = driver.find_elements_by_class_name("imgitem")
+    image_urls = list()
+
+    for image_element in image_elements:
+        image_url = image_element.get_attribute("data-objurl")
+        image_urls.append(image_url)
+    return image_urls
+
+
 def crawl_image_urls(keywords, engine="Google", max_number=0,
                      face_only=False, safe_mode=False, proxy=None, proxy_type="http"):
     """
     Scrape image urls of keywords from Google Image Search
     :param keywords: keywords you want to search
+    :param engine: search engine used to search images
     :param max_number: limit the max number of image urls the function output, equal or less than 0 for unlimited
     :param face_only: image type set to face only, provided by Google
     :param safe_mode: switch for safe mode of Google Search
@@ -29,30 +106,23 @@ def crawl_image_urls(keywords, engine="Google", max_number=0,
     :return: list of scraped image urls
     """
 
-    print("\nScraping From Google Image Search ...\n")
+    print("\nScraping From {0} Image Search ...\n".format(engine))
     print("Keywords:  " + keywords)
-    base_url = "https://www.google.com/search?tbm=isch"
-    keywords_str = "&q=" + quote(keywords)
-
-    query_url = base_url + keywords_str
-
     if max_number <= 0:
         print("Number:  No limit")
     else:
         print("Number:  {}".format(max_number))
+    print("Face Only:  {}".format(str(face_only)))
+    print("Safe Mode:  {}".format(str(safe_mode)))
 
-    if face_only is True:
-        query_url += "&tbs=itp:face"
-        print("Face Only:  Yes")
+    if engine == "Google":
+        query_url = google_gen_query_url(keywords, face_only, safe_mode)
+    elif engine == "Bing":
+        query_url = bing_gen_query_url(keywords, face_only, safe_mode)
+    elif engine == "Baidu":
+        query_url = baidu_gen_query_url(keywords, face_only, safe_mode)
     else:
-        print("Face Only:  No")
-
-    if safe_mode is True:
-        query_url += "&safe=on"
-        print("Safe Mode:  On")
-    else:
-        query_url += "&safe=off"
-        print("Safe Mode:  Off")
+        return
 
     print("Query URL:  " + query_url)
 
@@ -67,37 +137,17 @@ def crawl_image_urls(keywords, engine="Google", max_number=0,
     driver.set_window_size(10000, 7500)
     driver.get(query_url)
 
-    # last_image_count = 0
-    # retry_times = 0
+    if engine == "Google":
+        image_urls = google_image_url_from_webpage(driver)
+    elif engine == "Bing":
+        image_urls = bing_image_url_from_webpage(driver)
+    elif engine == "Baidu":
+        image_urls = baidu_image_url_from_webpage(driver)
 
-    # while True:
-    #     img_count = driver.find_elements_by_class_name("rg_l").__len__()
-    #     print("count = ", img_count)
-    #     if img_count > last_image_count:
-    #         last_image_count = img_count
-    #         retry_times = 0
-    #     else:
-    #         if retry_times > 5:
-    #             break
-    #         else:
-    #             retry_times += 1
-    #     time.sleep(0.5)
+    driver.close()
 
-    image_elements = driver.find_elements_by_class_name("rg_l")
-
-    image_urls = list()
-
-    url_pattern = "imgurl=\S*&amp;imgrefurl"
-
-    for image_element in image_elements:
-        outer_html = image_element.get_attribute("outerHTML")
-        re_group = re.search(url_pattern, outer_html)
-        if re_group is not None:
-            image_url = unquote(re_group.group()[7:-14])
-            image_urls.append(image_url)
-
-    if max_number > image_urls.__len__():
-        output_num = image_urls.__len__()
+    if max_number > len(image_urls):
+        output_num = len(image_urls)
     else:
         output_num = max_number
 

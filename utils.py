@@ -27,7 +27,7 @@ class AppConfig(object):
 
         str_paras += ' -n ' + str(self.max_number)
 
-        str_paras += ' -t ' + str(self.num_threads)
+        str_paras += ' -j ' + str(self.num_threads)
 
         str_paras += ' -o "' + self.output_dir + '/' + self.keywords + '"'
 

@@ -84,6 +84,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return config, keywords_list
 
     def start_download(self):
+        self.plainTextEdit_log.clear()
         if self.checkBox_from_file.isChecked() and self.lineEdit_path2file.text() == "" \
                 or not self.checkBox_from_file.isChecked() and self.lineEdit_keywords.text() == "":
             self.log("Keywords is empty!")

@@ -17,8 +17,10 @@ def main():
                         help="Image search engine.", choices=["Google", "Bing", "Baidu"])
     parser.add_argument("--max-number", "-n", type=int, default=100,
                         help="Max number of images download for the keywords.")
-    parser.add_argument("--num-threads", "-t", type=int, default=50,
+    parser.add_argument("--num-threads", "-j", type=int, default=50,
                         help="Number of threads to concurrently download images.")
+    parser.add_argument("--timeout", "-t", type=int, default=20,
+                        help="Seconds to timeout when download an image.")
     parser.add_argument("--output", "-o", type=str, default="./download_images",
                         help="Output directory to save downloaded images.")
     parser.add_argument("--safe-mode", "-S", action="store_true", default=False,
@@ -46,7 +48,7 @@ def main():
                                             face_only=args.face_only, safe_mode=args.safe_mode,
                                             proxy_type=proxy_type, proxy=proxy)
     downloader.download_images(image_urls=crawled_urls, dst_dir=args.output, concurrency=args.num_threads,
-                               proxy_type=proxy_type, proxy=proxy)
+                               proxy_type=proxy_type, proxy=proxy, timeout=args.timeout)
 
     print("Finished.")
 

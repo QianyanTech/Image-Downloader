@@ -13,11 +13,11 @@ __author__ = "Yabin Zheng ( sczhengyabin@hotmail.com )"
 
 headers = {
     'Connection': 'close',
-    'User-Agent': 'Chrome/51.0.2704.106'
+    'User-Agent': 'Chrome/54.0.2840.100'
 }
 
 
-def download_image(image_url, dst_dir, file_name, proxy_type=None, proxy=None):
+def download_image(image_url, dst_dir, file_name, proxy_type=None, proxy=None, timeout=20):
     proxies = None
     if proxy_type is not None:
         proxies = {
@@ -28,7 +28,7 @@ def download_image(image_url, dst_dir, file_name, proxy_type=None, proxy=None):
     r = None
     file_path = os.path.join(dst_dir, file_name)
     try:
-        r = requests.get(image_url, headers=headers, timeout=30, proxies=proxies)
+        r = requests.get(image_url, headers=headers, timeout=timeout, proxies=proxies)
         with open(file_path, 'wb') as f:
             f.write(r.content)
         r.close()
@@ -47,7 +47,7 @@ def download_image(image_url, dst_dir, file_name, proxy_type=None, proxy=None):
         print("## Fail:  ", image_url, e.args)
 
 
-def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, proxy_type=None, proxy=None):
+def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, proxy_type=None, proxy=None, timeout=20):
     """
     Download image according to given urls and automatically rename them in order.
     :param image_urls: list of image urls
@@ -64,5 +64,5 @@ def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, prox
         for image_url in image_urls:
             file_name = file_prefix + "_" + "%03d" % count
             futures.append(executor.submit(
-                download_image, image_url, dst_dir, file_name, proxy_type, proxy))
+                download_image, image_url, dst_dir, file_name, proxy_type, proxy, timeout))
             count += 1
