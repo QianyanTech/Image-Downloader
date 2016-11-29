@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-from future.moves.urllib.parse import unquote
+from urllib.parse import unquote, quote
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
-import time
 import re
 
 """ Scrape image urls of keywords from Google Image Search """
@@ -13,53 +12,51 @@ __author__ = "Yabin Zheng ( sczhengyabin@hotmail.com )"
 
 dcap = dict(DesiredCapabilities.PHANTOMJS)
 dcap["phantomjs.page.settings.userAgent"] = (
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/51.0.2704.106 Safari/537.36"
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.100"
 )
 
 
-def scrape_image_urls(keywords, number=None, face_only=False, safe_mode=False, proxy=None, proxy_type="http"):
+def crawl_image_urls(keywords, engine="Google", max_number=0,
+                     face_only=False, safe_mode=False, proxy=None, proxy_type="http"):
     """
     Scrape image urls of keywords from Google Image Search
     :param keywords: keywords you want to search
-    :param number: limit the max number of image urls the function output [1, 1000]
+    :param max_number: limit the max number of image urls the function output, equal or less than 0 for unlimited
     :param face_only: image type set to face only, provided by Google
     :param safe_mode: switch for safe mode of Google Search
-    :param proxy: proxy address, socks5 example: 192.168.0.91:1080, http example: http://192.168.0.91:8080
+    :param proxy: proxy address, example: socks5 192.168.0.91:1080
     :param proxy_type: socks5, http
     :return: list of scraped image urls
     """
+
     print("\nScraping From Google Image Search ...\n")
-    print("Keywords:\t" + keywords)
+    print("Keywords:  " + keywords)
     base_url = "https://www.google.com/search?tbm=isch"
-    keywords_str = "&q=" + "+".join(keywords.split())
+    keywords_str = "&q=" + quote(keywords)
 
     query_url = base_url + keywords_str
 
-    if number is None:
-        if number > 1000:
-            number = 1000
-        print("Number:\t\tNo limit")
+    if max_number <= 0:
+        print("Number:  No limit")
     else:
-        print("Number:\t\t" + str(number))
+        print("Number:  {}".format(max_number))
 
     if face_only is True:
         query_url += "&tbs=itp:face"
-        print("Face Only:\tYes")
+        print("Face Only:  Yes")
     else:
-        print("Face Only:\tNo")
+        print("Face Only:  No")
 
     if safe_mode is True:
         query_url += "&safe=on"
-        print("Safe Mode:\tOn")
+        print("Safe Mode:  On")
     else:
         query_url += "&safe=off"
-        print("Safe Mode:\tOff")
+        print("Safe Mode:  Off")
 
-    print("Query URL:\t" + query_url)
+    print("Query URL:  " + query_url)
 
-    phantomjs_args = list()
-
+    phantomjs_args = []
     if proxy is not None:
         phantomjs_args = [
             "--proxy=" + proxy,
@@ -70,22 +67,21 @@ def scrape_image_urls(keywords, number=None, face_only=False, safe_mode=False, p
     driver.set_window_size(10000, 7500)
     driver.get(query_url)
 
-    last_image_count = 0
-    retry_times = 0
+    # last_image_count = 0
+    # retry_times = 0
 
-    time.sleep(3)
-
-    while True:
-        img_count = driver.find_elements_by_class_name("rg_l").__len__()
-        if img_count > last_image_count:
-            if retry_times > 5:
-                break
-            else:
-                retry_times += 1
-        else:
-            last_image_count = img_count
-            retry_times = 0
-        time.sleep(0.5)
+    # while True:
+    #     img_count = driver.find_elements_by_class_name("rg_l").__len__()
+    #     print("count = ", img_count)
+    #     if img_count > last_image_count:
+    #         last_image_count = img_count
+    #         retry_times = 0
+    #     else:
+    #         if retry_times > 5:
+    #             break
+    #         else:
+    #             retry_times += 1
+    #     time.sleep(0.5)
 
     image_elements = driver.find_elements_by_class_name("rg_l")
 
@@ -100,9 +96,11 @@ def scrape_image_urls(keywords, number=None, face_only=False, safe_mode=False, p
             image_url = unquote(re_group.group()[7:-14])
             image_urls.append(image_url)
 
-    if number is not None and number > image_urls.__len__():
-        number = image_urls.__len__()
+    if max_number > image_urls.__len__():
+        output_num = image_urls.__len__()
+    else:
+        output_num = max_number
 
-    print("\nTotal {0} images scraped, {1} will be used.\n".format(image_urls.__len__(), number))
+    print("\n== {0} out of {1} crawled images urls will be used.\n".format(output_num, len(image_urls)))
 
-    return image_urls[0:number]
+    return image_urls[0:output_num]

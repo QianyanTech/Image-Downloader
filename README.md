@@ -2,9 +2,9 @@
 
 ## 1. Features
 
-Scrape images using Selenium + PhantomJS
+Crawl and download images using Selenium + PhantomJS
 
-Compatible with both Python2 and Python3
+Using python3 and PyQt4
 
 ## 2. Solve dependencies
 

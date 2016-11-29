@@ -17,11 +17,18 @@ headers = {
 }
 
 
-def download_image(image_url, dst_dir, file_name):
+def download_image(image_url, dst_dir, file_name, proxy_type=None, proxy=None):
+    proxies = None
+    if proxy_type is not None:
+        proxies = {
+            "http": proxy_type + "://" + proxy,
+            "https": proxy_type + "://" + proxy
+        }
+
     r = None
     file_path = os.path.join(dst_dir, file_name)
     try:
-        r = requests.get(image_url, headers=headers, timeout=30)
+        r = requests.get(image_url, headers=headers, timeout=30, proxies=proxies)
         with open(file_path, 'wb') as f:
             f.write(r.content)
         r.close()
@@ -30,17 +37,17 @@ def download_image(image_url, dst_dir, file_name):
             new_file_name = "{0}.{1}".format(file_name, file_type)
             new_file_path = os.path.join(dst_dir, new_file_name)
             shutil.move(file_path, new_file_path)
-            print("Download succeeded:\t{0}\t{1}".format(new_file_name, image_url))
+            print("## OK:  {0}  {1}".format(new_file_name, image_url))
         else:
             os.remove(file_path)
-            print("Error format:\t\t{0}\t\t\t{1}".format(file_name, image_url))
+            print("## Err:  {0}".format(image_url))
     except Exception as e:
         if r:
             r.close()
-        print("Download failed:\t" + file_name + "\t\t\t" + image_url)
+        print("## Fail:  ", image_url, e.args)
 
 
-def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50):
+def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, proxy_type=None, proxy=None):
     """
     Download image according to given urls and automatically rename them in order.
     :param image_urls: list of image urls
@@ -57,5 +64,5 @@ def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50):
         for image_url in image_urls:
             file_name = file_prefix + "_" + "%03d" % count
             futures.append(executor.submit(
-                download_image, image_url, dst_dir, file_name))
+                download_image, image_url, dst_dir, file_name, proxy_type, proxy))
             count += 1
