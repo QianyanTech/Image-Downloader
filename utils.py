@@ -54,5 +54,5 @@ def gen_keywords_list_from_str(keywords_str, sep=","):
 
 
 def gen_keywords_list_from_file(filepath):
-    with open(filepath, "r") as f:
+    with open(filepath, "r", encoding="utf-8") as f:
         return f.readlines()
