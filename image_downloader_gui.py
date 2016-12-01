@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
@@ -5,13 +6,25 @@ from __future__ import print_function
 from mainwindow import MainWindow
 
 from PyQt4.Qt import *
-import sys
+import sys, os
 
-app = QApplication(sys.argv)
 
-""" Initialize User Interface """
-main_window = MainWindow()
-main_window.setWindowTitle("Image Downloader")
-main_window.show()
+def main():
+    app = QApplication(sys.argv)
 
-sys.exit(app.exec_())
+    font = app.font()
+    if sys.platform.startswith("win"):
+        font.setFamily("Microsoft YaHei")
+    else:
+        font.setFamily("Ubuntu")
+    app.setFont(font)
+
+    """ Initialize User Interface """
+    main_window = MainWindow()
+    main_window.setWindowTitle("Image Downloader")
+    main_window.show()
+
+    sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    main()

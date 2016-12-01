@@ -17,7 +17,7 @@ headers = {
 }
 
 
-def download_image(image_url, dst_dir, file_name, proxy_type=None, proxy=None, timeout=20):
+def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, proxy=None):
     proxies = None
     if proxy_type is not None:
         proxies = {
@@ -34,22 +34,25 @@ def download_image(image_url, dst_dir, file_name, proxy_type=None, proxy=None, t
         r.close()
         file_type = imghdr.what(file_path)
         if file_type is not None:
-            new_file_name = "{0}.{1}".format(file_name, file_type)
+            new_file_name = "{}.{}".format(file_name, file_type)
             new_file_path = os.path.join(dst_dir, new_file_name)
             shutil.move(file_path, new_file_path)
-            print("## OK:  {0}  {1}".format(new_file_name, image_url))
+            print("## OK:  {}  {}".format(new_file_name, image_url))
         else:
             os.remove(file_path)
-            print("## Err:  {0}".format(image_url))
+            print("## Err:  {}".format(image_url))
     except Exception as e:
         if r:
             r.close()
-        print("## Fail:  ", image_url, e.args)
+        print("## Fail:  {}  {}".format(image_url, e.args))
 
 
-def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, proxy_type=None, proxy=None, timeout=20):
+def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, timeout=20, proxy_type=None, proxy=None):
     """
     Download image according to given urls and automatically rename them in order.
+    :param timeout:
+    :param proxy:
+    :param proxy_type:
     :param image_urls: list of image urls
     :param dst_dir: output the downloaded images to dst_dir
     :param file_prefix: if set to "img", files will be in format "img_xxx.jpg"
@@ -64,5 +67,5 @@ def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, prox
         for image_url in image_urls:
             file_name = file_prefix + "_" + "%03d" % count
             futures.append(executor.submit(
-                download_image, image_url, dst_dir, file_name, proxy_type, proxy, timeout))
+                download_image, image_url, dst_dir, file_name, timeout, proxy_type, proxy))
             count += 1

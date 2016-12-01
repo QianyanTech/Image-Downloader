@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainwindow.ui'
+# Form implementation generated from reading ui file '.\mainwindow.ui'
 #
-# Created: Tue Nov 29 16:13:56 2016
-#      by: PyQt4 UI code generator 4.10.4
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -78,15 +77,7 @@ class Ui_MainWindow(object):
         font.setFamily(_fromUtf8("Ubuntu Mono"))
         font.setPointSize(12)
         self.progressBar_total.setFont(font)
-        self.progressBar_total.setStyleSheet(_fromUtf8("QProgressBar {\n"
-"    border: 2px solid gray;\n"
-"    background-color: rgba(0, 0, 0, 0);\n"
-"}\n"
-"\n"
-"QProgressBar::chunk {\n"
-"    background-color: rgba(0, 200, 0);\n"
-"    width: 1px;\n"
-"}"))
+        self.progressBar_total.setStyleSheet(_fromUtf8(""))
         self.progressBar_total.setMaximum(1000)
         self.progressBar_total.setProperty("value", 0)
         self.progressBar_total.setAlignment(QtCore.Qt.AlignCenter)
@@ -110,7 +101,8 @@ class Ui_MainWindow(object):
         font.setFamily(_fromUtf8("Ubuntu Mono"))
         font.setPointSize(12)
         self.progressBar_current.setFont(font)
-        self.progressBar_current.setStyleSheet(_fromUtf8("QProgressBar {\n"
+        self.progressBar_current.setStyleSheet(_fromUtf8("/*\n"
+"QProgressBar {\n"
 "    border: 2px solid gray;\n"
 "    background-color: rgba(0, 0, 0, 0);\n"
 "}\n"
@@ -118,7 +110,7 @@ class Ui_MainWindow(object):
 "QProgressBar::chunk {\n"
 "    background-color: rgba(0, 200, 0);\n"
 "    width: 1px;\n"
-"}"))
+"}*/"))
         self.progressBar_current.setMaximum(1000)
         self.progressBar_current.setProperty("value", 0)
         self.progressBar_current.setAlignment(QtCore.Qt.AlignCenter)
@@ -132,8 +124,8 @@ class Ui_MainWindow(object):
         self.groupBox_2.setStyleSheet(_fromUtf8("QGroupBox{border:1px ridge gray;margin-top: 1ex;} QGroupBox::title{subcontrol-origin: margin;subcontrol-position:top center;padding:0 3px;}"))
         self.groupBox_2.setObjectName(_fromUtf8("groupBox_2"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.groupBox_2)
-        self.verticalLayout_2.setSpacing(20)
         self.verticalLayout_2.setMargin(30)
+        self.verticalLayout_2.setSpacing(20)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
         self.pushButton_start = QtGui.QPushButton(self.groupBox_2)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
@@ -180,7 +172,6 @@ class Ui_MainWindow(object):
         self.widget = QtGui.QWidget(self.groupBox_config)
         self.widget.setObjectName(_fromUtf8("widget"))
         self.horizontalLayout = QtGui.QHBoxLayout(self.widget)
-        self.horizontalLayout.setMargin(0)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.radioButton_google = QtGui.QRadioButton(self.widget)
         font = QtGui.QFont()
@@ -213,7 +204,6 @@ class Ui_MainWindow(object):
         self.widget_2 = QtGui.QWidget(self.groupBox_config)
         self.widget_2.setObjectName(_fromUtf8("widget_2"))
         self.gridLayout = QtGui.QGridLayout(self.widget_2)
-        self.gridLayout.setMargin(0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.label = QtGui.QLabel(self.widget_2)
         font = QtGui.QFont()
@@ -271,7 +261,6 @@ class Ui_MainWindow(object):
         self.widget_6.setObjectName(_fromUtf8("widget_6"))
         self.horizontalLayout_5 = QtGui.QHBoxLayout(self.widget_6)
         self.horizontalLayout_5.setSpacing(6)
-        self.horizontalLayout_5.setMargin(0)
         self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
         self.label_7 = QtGui.QLabel(self.widget_6)
         font = QtGui.QFont()
@@ -313,7 +302,6 @@ class Ui_MainWindow(object):
         self.widget_3 = QtGui.QWidget(self.groupBox_config)
         self.widget_3.setObjectName(_fromUtf8("widget_3"))
         self.horizontalLayout_4 = QtGui.QHBoxLayout(self.widget_3)
-        self.horizontalLayout_4.setMargin(0)
         self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
         self.checkBox_face_only = QtGui.QCheckBox(self.widget_3)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
@@ -474,7 +462,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.setRowStretch(2, 4)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 23))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)

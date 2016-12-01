@@ -6,18 +6,37 @@ import utils
 
 from PyQt4.Qt import *
 from PyQt4.QtTest import QTest
+from multiprocessing import Process
+from threading import Thread
+import shlex
+import os
+import sys
 
-
-script_image_download = "python3 image_downloader.py"
+import image_downloader
+from logger import logger
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
+        logger.log_hooks.append(self.log)
+        self.log_queue = []
+
         QMainWindow.__init__(self)
 
         self.setupUi(self)
 
         self.state = "stop"
+
+        self.elapsed_timer = QElapsedTimer()
+
+        self.update_timer = QTimer()
+        self.update_timer.setInterval(100)
+        self.update_timer.timeout.connect(self.update_elapsed_time)
+
+        self.process_log_timer = QTimer()
+        self.process_log_timer.setInterval(100)
+        self.process_log_timer.timeout.connect(self.progress_log)
+        self.process_log_timer.start()
 
         self.pushButton_load_file.clicked.connect(
             lambda: self.lineEdit_path2file.setText(QFileDialog.getOpenFileName(
@@ -30,14 +49,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pushButton_cancel.clicked.connect(self.cancel_download)
 
     def log(self, text):
-        self.plainTextEdit_log.appendPlainText("[" + QTime.currentTime().toString() + "]  " + text)
+        if text.strip(" \n") == "":
+            return
+        self.log_queue.append(text)
+
+    def progress_log(self):
+        while len(self.log_queue) > 0:
+            log_str = self.log_queue.pop(0)
+            if log_str.startswith("=="):
+                self.progressBar_current.setMaximum(int(log_str.split()[1]))
+            if log_str.startswith("##"):
+                self.progressBar_current.setValue(self.progressBar_current.value() + 1)
+            log_str = "[" + QTime.currentTime().toString() + "]  " + log_str
+            self.plainTextEdit_log.appendPlainText(log_str)
 
     def reset_ui(self):
         self.progressBar_current.setFormat("")
         self.progressBar_current.reset()
         self.progressBar_total.setFormat("")
         self.progressBar_total.reset()
-        self.label_time_elapsed.clear()
+        self.label_time_elapsed.setText("00:00:00")
+        self.plainTextEdit_log.clear()
+
+    def update_elapsed_time(self):
+        elapsed_total = self.elapsed_timer.elapsed() / 1000
+        elapsed_hour = elapsed_total / 3600
+        elapsed_minutes = (elapsed_total % 3600) / 60
+        elapsed_secs = elapsed_total % 60
+        str_elapsed_time = "%02d:%02d:%02d" % (elapsed_hour, elapsed_minutes, elapsed_secs)
+        self.label_time_elapsed.setText(str_elapsed_time)
 
     def gen_config_from_ui(self):
 
@@ -84,15 +124,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return config, keywords_list
 
     def start_download(self):
-        self.plainTextEdit_log.clear()
         if self.checkBox_from_file.isChecked() and self.lineEdit_path2file.text() == "" \
                 or not self.checkBox_from_file.isChecked() and self.lineEdit_keywords.text() == "":
-            self.log("Keywords is empty!")
+            print("Keywords is empty!")
             self.lineEdit_keywords.setFocus()
             return
 
         if self.lineEdit_output.text() == "":
-            self.log("Output directory is empty!")
+            print("Output directory is empty!")
             self.lineEdit_output.setFocus()
             return
 
@@ -102,76 +141,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         config, keywords_list = self.gen_config_from_ui()
 
-        elapsed_timer = QElapsedTimer()
-        elapsed_timer.start()
+        self.elapsed_timer.restart()
+        self.update_timer.start()
 
         self.reset_ui()
         num_keywords = len(keywords_list)
 
         self.progressBar_total.setMaximum(num_keywords)
+        self.progressBar_total.setFormat("%p%, %v/%m")
+        self.progressBar_total.setValue(0)
 
         for index in range(num_keywords):
             if self.state != "run":
                 break
             keywords = keywords_list[index].strip()
-            self.progressBar_total.setValue(index+1)
-            self.progressBar_total.setFormat("%p%, %v/%m")
             if keywords == "":
                 continue
+
             config.keywords = keywords
             str_paras = config.to_command_paras()
-            str_paras = script_image_download + " " + str_paras
 
-            self.log(str_paras)
+            print(str_paras)
 
             self.progressBar_current.setMaximum(config.max_number)
             self.progressBar_current.setValue(0)
             self.progressBar_current.setFormat(keywords + ", %p%, %v/%m")
 
-            process_download = QProcess(self)
-            process_download.start(str_paras)
+            thread_download = Thread(target=image_downloader.main, args=[shlex.split(str_paras)])
+            thread_download.start()
 
-            num_downloaded = 0
-            while True:
-                if self.state != "run":
-                    break
-                if process_download.state() == QProcess.NotRunning:
-                    break
+            while thread_download.is_alive():
+                QTest.qWait(1000)
+                if self.isHidden():
+                    os._exit(0)
 
-                elapsed_total = elapsed_timer.elapsed() / 1000
-                elapsed_hour = elapsed_total / 3600
-                elapsed_minutes = (elapsed_total % 3600) / 60
-                elapsed_secs = elapsed_total % 60
-                str_elapsed_time = "%02d:%02d:%02d" % (elapsed_hour, elapsed_minutes, elapsed_secs)
-                self.label_time_elapsed.setText(str_elapsed_time)
-                QTest.qWait(100)
-
-                if process_download.bytesAvailable():
-                    str_debug = process_download.readAllStandardOutput()
-                    str_debug += process_download.readAllStandardError()
-                    logs = bytes(str_debug).decode("utf-8").splitlines()
-                    for a_log in logs:
-                        self.log(a_log)
-                        if a_log.startswith("=="):
-                            num_to_download = int(a_log.split()[1])
-                            self.progressBar_current.setMaximum(num_to_download)
-                        if a_log.startswith("##"):
-                            num_downloaded += 1
-                            self.progressBar_current.setValue(num_downloaded)
-
-            if process_download.state() != QProcess.NotRunning:
-                process_download.kill()
+            self.progressBar_total.setValue(index + 1)
 
         if self.state == "run":
-            self.cancel_download()
-
+            self.state = "stop"
+        self.pushButton_cancel.setEnabled(False)
+        self.pushButton_start.setEnabled(True)
+        self.update_timer.stop()
+        print("stopped")
         pass
 
     def cancel_download(self):
         self.state = "stop"
         self.pushButton_cancel.setEnabled(False)
-        self.pushButton_start.setEnabled(True)
-
-        self.log("stopped")
 
     pass

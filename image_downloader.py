@@ -6,10 +6,10 @@ import argparse
 
 import crawler
 import downloader
-from utils import *
+import sys
 
 
-def main():
+def main(argv):
     parser = argparse.ArgumentParser(description="Image Downloader")
     parser.add_argument("keywords", type=str,
                         help='Keywords to search. ("in quotes")')
@@ -32,7 +32,7 @@ def main():
     parser.add_argument("--proxy_socks5", "-ps", type=str, default=None,
                         help="Set socks5 proxy (e.g. 192.168.0.2:1080)")
 
-    args = parser.parse_args()
+    args = parser.parse_args(args=argv)
 
     proxy_type = None
     proxy = None
@@ -47,10 +47,11 @@ def main():
                                             engine=args.engine, max_number=args.max_number,
                                             face_only=args.face_only, safe_mode=args.safe_mode,
                                             proxy_type=proxy_type, proxy=proxy)
-    downloader.download_images(image_urls=crawled_urls, dst_dir=args.output, concurrency=args.num_threads,
-                               proxy_type=proxy_type, proxy=proxy, timeout=args.timeout)
+    downloader.download_images(image_urls=crawled_urls, dst_dir=args.output,
+                               concurrency=args.num_threads, timeout=args.timeout,
+                               proxy_type=proxy_type, proxy=proxy)
 
     print("Finished.")
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

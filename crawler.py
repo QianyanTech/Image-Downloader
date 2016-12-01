@@ -5,11 +5,22 @@ from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 import re
 import time
+import sys
+import os
 
 """ Scrape image urls of keywords from Google Image Search """
 
 __author__ = "Yabin Zheng ( sczhengyabin@hotmail.com )"
 
+if getattr(sys, 'frozen', False):
+    bundle_dir = sys._MEIPASS
+else:
+    bundle_dir = os.path.dirname(os.path.abspath(__file__))
+
+if sys.platform.startswith("win"):
+    phantomjs_path = os.path.join(bundle_dir + "/bin/phantomjs.exe")
+else:
+    phantomjs_path = "phantomjs"
 
 dcap = dict(DesiredCapabilities.PHANTOMJS)
 dcap["phantomjs.page.settings.userAgent"] = (
@@ -132,7 +143,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=0,
             "--proxy=" + proxy,
             "--proxy-type=" + proxy_type,
             ]
-    driver = webdriver.PhantomJS(executable_path="phantomjs",
+    driver = webdriver.PhantomJS(executable_path=phantomjs_path,
                                  service_args=phantomjs_args, desired_capabilities=dcap)
     driver.set_window_size(10000, 7500)
     driver.get(query_url)
