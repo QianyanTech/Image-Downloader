@@ -9,14 +9,10 @@ Using python3 and PyQt4
 ## 2. Solve dependencies
 
 2.1 Copy phantomjs executable in ./bin to /usr/bin/, or just add it to PATH.
-This is the Linux 64 version, download the corresponding version of phantomjs
-from official website if you'd like run it on other platform.)
+phantomjs executable can be downloaded from [here](https://bitbucket.org/ariya/phantomjs/downloads)
 
-2.2 Install depend packages through python pip
+2.2 solve requirements.txt
+pip install -r requirements.txt
 
-depend packages: selenium futures requests
-
-## 3. Usage
-
-Change keywords and options in main.py, then run it !
-
+## 3. Windows bundled executable binary.
+Download prebuilt windows binary from [here](https://github.com/sczhengyabin/Google-Image-Downloader/releases)

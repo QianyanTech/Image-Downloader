@@ -29,6 +29,11 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
       <property name="styleSheet">
        <string notr="true">QGroupBox{border:1px ridge gray;margin-top: 1ex;} QGroupBox::title{subcontrol-origin: margin;subcontrol-position:top center;padding:0 3px;}</string>
       </property>
@@ -173,6 +178,11 @@ QProgressBar::chunk {
     </item>
     <item row="0" column="1">
      <widget class="QGroupBox" name="groupBox_2">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
       <property name="styleSheet">
        <string notr="true">QGroupBox{border:1px ridge gray;margin-top: 1ex;} QGroupBox::title{subcontrol-origin: margin;subcontrol-position:top center;padding:0 3px;}</string>
       </property>
@@ -254,6 +264,11 @@ QProgressBar::chunk {
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
       </property>
       <property name="styleSheet">
        <string notr="true">QGroupBox{border:1px ridge gray;margin-top: 1ex;} QGroupBox::title{subcontrol-origin: margin;subcontrol-position:top center;padding:0 3px;}</string>
@@ -804,8 +819,20 @@ per keywords</string>
      <height>23</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>lineEdit_keywords</tabstop>
@@ -838,12 +865,12 @@ per keywords</string>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>169</y>
+     <x>157</x>
+     <y>158</y>
     </hint>
     <hint type="destinationlabel">
-     <x>367</x>
-     <y>137</y>
+     <x>531</x>
+     <y>125</y>
     </hint>
    </hints>
   </connection>
@@ -854,12 +881,12 @@ per keywords</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>169</y>
+     <x>157</x>
+     <y>158</y>
     </hint>
     <hint type="destinationlabel">
-     <x>542</x>
-     <y>172</y>
+     <x>599</x>
+     <y>158</y>
     </hint>
    </hints>
   </connection>
@@ -870,12 +897,12 @@ per keywords</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>169</y>
+     <x>157</x>
+     <y>158</y>
     </hint>
     <hint type="destinationlabel">
-     <x>391</x>
-     <y>172</y>
+     <x>518</x>
+     <y>157</y>
     </hint>
    </hints>
   </connection>
@@ -886,12 +913,12 @@ per keywords</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>121</x>
-     <y>342</y>
+     <x>131</x>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
-     <x>353</x>
-     <y>342</y>
+     <x>491</x>
+     <y>334</y>
     </hint>
    </hints>
   </connection>
@@ -902,12 +929,12 @@ per keywords</string>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>342</y>
+     <x>131</x>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
      <x>599</x>
-     <y>342</y>
+     <y>334</y>
     </hint>
    </hints>
   </connection>
@@ -918,8 +945,8 @@ per keywords</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
-     <y>80</y>
+     <x>165</x>
+     <y>76</y>
     </hint>
     <hint type="destinationlabel">
      <x>220</x>
@@ -982,8 +1009,8 @@ per keywords</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>162</y>
+     <x>92</x>
+     <y>158</y>
     </hint>
     <hint type="destinationlabel">
      <x>544</x>

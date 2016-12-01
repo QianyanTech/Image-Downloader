@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 
 from ui_mainwindow import Ui_MainWindow
-
+from ui_about import Ui_Dialog_about
 import utils
 
 from PyQt4.Qt import *
 from PyQt4.QtTest import QTest
-from multiprocessing import Process
 from threading import Thread
 import shlex
 import os
-import sys
 
 import image_downloader
 from logger import logger
+
+
+class DialogAbout(QDialog, Ui_Dialog_about):
+    def __init__(self):
+        QDialog.__init__(self)
+        self.setupUi(self)
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -24,6 +28,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self)
 
         self.setupUi(self)
+
+        self.dialog_about = DialogAbout()
 
         self.state = "stop"
 
@@ -37,6 +43,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.process_log_timer.setInterval(100)
         self.process_log_timer.timeout.connect(self.progress_log)
         self.process_log_timer.start()
+
+        self.actionAbout.triggered.connect(self.dialog_about.show)
 
         self.pushButton_load_file.clicked.connect(
             lambda: self.lineEdit_path2file.setText(QFileDialog.getOpenFileName(
