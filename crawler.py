@@ -43,6 +43,12 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False):
 
 def google_image_url_from_webpage(driver):
     # time.sleep(10)
+    try:
+        show_more = driver.find_element_by_id("smb")
+        show_more.click()
+        time.sleep(10)
+    except Exception as e:
+        pass
     image_elements = driver.find_elements_by_class_name("rg_l")
     image_urls = list()
     url_pattern = "imgurl=\S*&amp;imgrefurl"
