@@ -737,6 +737,9 @@ per keywords</string>
                <property name="text">
                 <string>HTTP</string>
                </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
                <attribute name="buttonGroup">
                 <string notr="true">buttonGroup_2</string>
                </attribute>
@@ -762,7 +765,7 @@ per keywords</string>
                 <string>Socks5</string>
                </property>
                <property name="checked">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <attribute name="buttonGroup">
                 <string notr="true">buttonGroup_2</string>
@@ -775,6 +778,15 @@ per keywords</string>
                 <font>
                  <pointsize>12</pointsize>
                 </font>
+               </property>
+               <property name="toolTip">
+                <string>input ip:port</string>
+               </property>
+               <property name="statusTip">
+                <string>xxx.xxx.xxx.xx:port</string>
+               </property>
+               <property name="placeholderText">
+                <string>xxx.xxx.xxx.xx:port</string>
                </property>
               </widget>
              </item>

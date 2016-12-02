@@ -12,8 +12,12 @@ __author__ = "Yabin Zheng ( sczhengyabin@hotmail.com )"
 
 
 headers = {
-    'Connection': 'close',
-    'User-Agent': 'Chrome/54.0.2840.100'
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Proxy-Connection": "keep-alive",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36",
+    "Accept-Encoding": "gzip, deflate, sdch",
+    # 'Connection': 'close',
 }
 
 
@@ -59,6 +63,7 @@ def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, time
     :param concurrency: number of requests process simultaneously
     :return: none
     """
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
         futures = list()
         count = 0

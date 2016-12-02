@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
+def gen_valid_dir_name_for_keywords(keywords):
+    keep = ["-", "_", "."]
+    keywords = keywords.replace(" ", "_").replace(":", "-")
+    return "".join(c for c in keywords if c.isalnum() or c in keep).rstrip()
+
+
 class AppConfig(object):
     def __init__(self):
         self.engine = "Google"
@@ -29,7 +35,7 @@ class AppConfig(object):
 
         str_paras += ' -j ' + str(self.num_threads)
 
-        str_paras += ' -o "' + self.output_dir + '/' + self.keywords + '"'
+        str_paras += ' -o "' + self.output_dir + '/' + gen_valid_dir_name_for_keywords(self.keywords) + '"'
 
         if self.face_only:
             str_paras += ' -F '

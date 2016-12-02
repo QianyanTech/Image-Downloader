@@ -29,7 +29,7 @@ dcap["phantomjs.page.settings.userAgent"] = (
 
 
 def google_gen_query_url(keywords, face_only=False, safe_mode=False):
-    base_url = "https://www.google.com/search?tbm=isch"
+    base_url = "https://www.google.com/search?tbm=isch&hl=en"
     keywords_str = "&q=" + quote(keywords)
     query_url = base_url + keywords_str
     if face_only is True:
@@ -42,7 +42,7 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False):
 
 
 def google_image_url_from_webpage(driver):
-    time.sleep(10)
+    # time.sleep(10)
     image_elements = driver.find_elements_by_class_name("rg_l")
     image_urls = list()
     url_pattern = "imgurl=\S*&amp;imgrefurl"
