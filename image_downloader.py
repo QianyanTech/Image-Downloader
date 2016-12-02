@@ -49,7 +49,8 @@ def main(argv):
                                             proxy_type=proxy_type, proxy=proxy)
     downloader.download_images(image_urls=crawled_urls, dst_dir=args.output,
                                concurrency=args.num_threads, timeout=args.timeout,
-                               proxy_type=proxy_type, proxy=proxy)
+                               proxy_type=proxy_type, proxy=proxy,
+                               file_prefix=args.engine)
 
     print("Finished.")
 
