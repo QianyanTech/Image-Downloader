@@ -624,7 +624,7 @@ per keywords</string>
              <number>1</number>
             </property>
             <property name="maximum">
-             <number>500</number>
+             <number>2000</number>
             </property>
             <property name="value">
              <number>100</number>
@@ -672,7 +672,7 @@ per keywords</string>
              <number>1</number>
             </property>
             <property name="maximum">
-             <number>100</number>
+             <number>200</number>
             </property>
             <property name="value">
              <number>50</number>
