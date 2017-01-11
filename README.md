@@ -5,15 +5,15 @@
 Crawl and download images using Selenium + PhantomJS
 Using python3 and PyQt4
 
-## 2. Key features:
-+Search Engine: Google, Bing, Baidu
-+Keywords input from keyboard, or input from line seperated keywords list file for batch process.
-+Download image using customizable number of threads.
-+Fully supported conditional search (eg. filetype:, site:).
-+Switch for Google safe mode.
-+Proxy configuration (socks, http).
-+CMD and GUI ways of using are provided.
-+Windows prebuilt executable release from [release page](https://github.com/sczhengyabin/Google-Image-Downloader/releases).
+## 2. Key features
++ Search Engine: Google, Bing, Baidu
++ Keywords input from keyboard, or input from line seperated keywords list file for batch process.
++ Download image using customizable number of threads.
++ Fully supported conditional search (eg. filetype:, site:).
++ Switch for Google safe mode.
++ Proxy configuration (socks, http).
++ CMD and GUI ways of using are provided.
++ Windows prebuilt executable release from [release page](https://github.com/sczhengyabin/Google-Image-Downloader/releases).
 
 ## 3. Solve dependencies under Linux
 
