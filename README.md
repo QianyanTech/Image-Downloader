@@ -48,4 +48,15 @@ Add the path of phantomjs executable to $PATH, or simply copy it to /usr/local/b
 pip3 install -r requirements.txt
 ```
 ## 4. Usage
-Reference from [wiki](https://github.com/sczhengyabin/Google-Image-Downloader/wiki)
+### 4.1 GUI
+![](http://p1.bqimg.com/567571/2d72755a4d3fc319.png)
+### 4.2 CMD
+```
+usage: image_downloader.py [-h] [--engine {Google,Bing,Baidu}]
+                           [--max-number MAX_NUMBER]
+                           [--num-threads NUM_THREADS] [--timeout TIMEOUT]
+                           [--output OUTPUT] [--safe-mode] [--face-only]
+                           [--proxy_http PROXY_HTTP]
+                           [--proxy_socks5 PROXY_SOCKS5]
+                           keywords
+```
