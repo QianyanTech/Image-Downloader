@@ -7,6 +7,7 @@ import re
 import time
 import sys
 import os
+import json
 
 """ Scrape image urls of keywords from Google Image Search """
 
@@ -26,7 +27,6 @@ dcap = dict(DesiredCapabilities.PHANTOMJS)
 dcap["phantomjs.page.settings.userAgent"] = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.100"
 )
-
 
 def google_gen_query_url(keywords, face_only=False, safe_mode=False):
     base_url = "https://www.google.com/search?tbm=isch&hl=en"
@@ -68,24 +68,34 @@ def bing_gen_query_url(keywords, face_only=False, safe_mode=False):
     query_url = base_url + keywords_str
     if face_only is True:
         query_url += "&qft=+filterui:face-face"
+
     return query_url
 
 
 def bing_image_url_from_webpage(driver):
-    time.sleep(10)
-    parents = driver.find_elements_by_class_name("dg_u")
-    image_elements = []
-    for parent in parents:
-        image_elements.append(parent.find_element_by_tag_name("a"))
     image_urls = list()
-    url_pattern = 'imgurl:&quot;\S*&quot;,tid'
 
+    time.sleep(10)
+
+    image_elements = driver.find_elements_by_class_name("iusc")
     for image_element in image_elements:
-        outer_html = image_element.get_attribute("outerHTML")
-        re_group = re.search(url_pattern, outer_html)
-        if re_group is not None:
-            image_url = unquote(re_group.group()[13:-10])
-            image_urls.append(image_url)
+        m_json_str = image_element.get_attribute("m")
+        m_json = json.loads(m_json_str)
+        image_urls.append(m_json["murl"])
+
+    # parents = driver.find_elements_by_class_name("du_g")
+    # image_elements = []
+    # for parent in parents:
+    #     image_elements.append(parent.find_element_by_tag_name("a"))
+    # image_urls = list()
+    # url_pattern = 'imgurl:&quot;\S*&quot;,tid'
+    #
+    # for image_element in image_elements:
+    #     outer_html = image_element.get_attribute("outerHTML")
+    #     re_group = re.search(url_pattern, outer_html)
+    #     if re_group is not None:
+    #         image_url = unquote(re_group.group()[13:-10])
+    #         image_urls.append(image_url)
     return image_urls
 
 

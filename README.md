@@ -13,7 +13,7 @@ Using python3 and PyQt4
 + Switch for Google safe mode.
 + Proxy configuration (socks, http).
 + CMD and GUI ways of using are provided.
-+ Windows prebuilt executable release from [release page](https://github.com/sczhengyabin/Google-Image-Downloader/releases).
++ **Windows prebuilt executable release from [release page](https://github.com/sczhengyabin/Google-Image-Downloader/releases).**
 
 ## 3. Solve dependencies
 ### 3.1 Windows
