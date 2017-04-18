@@ -76,26 +76,24 @@ def bing_image_url_from_webpage(driver):
     image_urls = list()
 
     time.sleep(10)
+    img_count = 0
 
-    image_elements = driver.find_elements_by_class_name("iusc")
+    while True:
+        image_elements = driver.find_elements_by_class_name("iusc")
+        if len(image_elements) > img_count:
+            img_count = len(image_elements)
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        else:
+            smb = driver.find_elements_by_class_name("btn_seemore")
+            if len(smb) > 0 and smb[0].is_displayed():
+                smb[0].click()
+            else:
+                break
+        time.sleep(3)
     for image_element in image_elements:
         m_json_str = image_element.get_attribute("m")
         m_json = json.loads(m_json_str)
         image_urls.append(m_json["murl"])
-
-    # parents = driver.find_elements_by_class_name("du_g")
-    # image_elements = []
-    # for parent in parents:
-    #     image_elements.append(parent.find_element_by_tag_name("a"))
-    # image_urls = list()
-    # url_pattern = 'imgurl:&quot;\S*&quot;,tid'
-    #
-    # for image_element in image_elements:
-    #     outer_html = image_element.get_attribute("outerHTML")
-    #     re_group = re.search(url_pattern, outer_html)
-    #     if re_group is not None:
-    #         image_url = unquote(re_group.group()[13:-10])
-    #         image_urls.append(image_url)
     return image_urls
 
 
@@ -161,14 +159,18 @@ def crawl_image_urls(keywords, engine="Google", max_number=0,
             ]
     driver = webdriver.PhantomJS(executable_path=phantomjs_path,
                                  service_args=phantomjs_args, desired_capabilities=dcap)
-    driver.set_window_size(10000, 7500)
-    driver.get(query_url)
 
     if engine == "Google":
+        driver.set_window_size(10000, 7500)
+        driver.get(query_url)
         image_urls = google_image_url_from_webpage(driver)
     elif engine == "Bing":
+        driver.set_window_size(1920, 1080)
+        driver.get(query_url)
         image_urls = bing_image_url_from_webpage(driver)
-    elif engine == "Baidu":
+    else:   # Baidu
+        driver.set_window_size(10000, 7500)
+        driver.get(query_url)
         image_urls = baidu_image_url_from_webpage(driver)
 
     driver.close()
