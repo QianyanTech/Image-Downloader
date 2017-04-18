@@ -3,7 +3,7 @@
 ## 1. Introdoction
 
 Crawl and download images using Selenium + PhantomJS
-Using python3 and PyQt4
+Using python3 and PyQt5
 
 ## 2. Key features
 + Search Engine: Google, Bing, Baidu
@@ -17,10 +17,10 @@ Using python3 and PyQt4
 
 ## 3. Solve dependencies
 ### 3.1 Windows
-#### 3.1.1 Download and install Python3.4
-Download Latest version of Python3.4 installer from [here](https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi)
-#### 3.1.2 Download and install PyQt4
-Download latest version of PyQt4 install from [here](https://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/PyQt4-4.11.4-gpl-Py3.4-Qt4.8.7-x32.exe/download)
+#### 3.1.1 Download and install Python3.5
+Download Latest version of Python3.5 installer from [here](https://www.python.org/ftp/python/3.5.3/python-3.5.3.exe)
+#### 3.1.2 Download and install PyQt5
+Download latest version of PyQt5 install from [here](https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.6/PyQt5-5.6-gpl-Py3.5-Qt5.6.0-x32-2.exe/download)
 #### 3.1.3 Download and setup phantomjs
 Official phantomjs prebuilt executable can be downloaded from [here](https://bitbucket.org/ariya/phantomjs/downloads)
 
