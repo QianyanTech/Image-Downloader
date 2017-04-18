@@ -4,8 +4,8 @@ from ui_mainwindow import Ui_MainWindow
 from ui_about import Ui_Dialog_about
 import utils
 
-from PyQt4.Qt import *
-from PyQt4.QtTest import QTest
+from PyQt5.Qt import *
+from PyQt5.QtTest import QTest
 from threading import Thread
 import shlex
 import os

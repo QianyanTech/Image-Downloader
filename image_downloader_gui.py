@@ -5,7 +5,7 @@ from __future__ import print_function
 
 from mainwindow import MainWindow
 
-from PyQt4.Qt import *
+from PyQt5.Qt import *
 import sys, os
 
 
