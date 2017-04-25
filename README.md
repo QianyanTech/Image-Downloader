@@ -37,8 +37,8 @@ apt-get install python3-pip python3-pyqt5 pyqt5-dev-tools
 #### 3.2.2 Download and setup phantomjs
 + **For PC users**
 
-Official phantomjs prebuilt executable can be downloaded from [here](https://bitbucket.org/ariya/phantomjs/downloads)
-** [Warning]: PhantomJS installed from ubuntu source by apt-get do not work in this project. **
+Official phantomjs prebuilt executable can be downloaded from [here](https://bitbucket.org/ariya/phantomjs/downloads)  
+**[Warning]: PhantomJS installed from ubuntu source by apt-get do not work in this project.**
 + **For Raspberry Pi Users**
 
 Unofficial phantomjs prebuilt executable or .deb for raspberry pi can be downloaded from [here](https://github.com/fg2it/phantomjs-on-raspberry/releases)
