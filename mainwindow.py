@@ -48,7 +48,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.pushButton_load_file.clicked.connect(
             lambda: self.lineEdit_path2file.setText(QFileDialog.getOpenFileName(
-                self, "Load keywords from file", "./", "Text files (*.txt)")))
+                self, "Load keywords from file", "./", "Text files (*.txt)")[0]))
         self.pushButton_output.clicked.connect(
             lambda: self.lineEdit_output.setText(QFileDialog.getExistingDirectory(
                 self, "Set output directory", "./")))
