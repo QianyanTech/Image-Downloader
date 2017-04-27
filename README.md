@@ -1,4 +1,4 @@
-# Google Image Downloader
+# Image Downloader
 
 ## 1. Introdoction
 
@@ -6,7 +6,7 @@ Crawl and download images using Selenium + PhantomJS
 Using python3 and PyQt5
 
 ## 2. Key features
-+ Search Engine: Google, Bing, Baidu
++ Supported Search Engine: Google, Bing, Baidu
 + Keywords input from keyboard, or input from line seperated keywords list file for batch process.
 + Download image using customizable number of threads.
 + Fully supported conditional search (eg. filetype:, site:).
@@ -29,6 +29,16 @@ Then copy phantomjs.exe to ${project_directory}/bin/
 ```
 pip3.exe install -r requirements.txt
 ```
+#### 3.1.5 Build one-file .exe bundle
+```
+pip3.exe install pyinstaller
+mkdir bin
+```
+copy the downloaded phantomjs.exe from 3.1.3 into ./bin folder.
+```
+pyinstaller image_downloader_gui.spec
+```
+The bundle will be built in ./dist folder.
 ### 3.2 Linux
 #### 3.2.1 Install dependent packages
 ```
