@@ -1,5 +1,7 @@
 # Image Downloader
 
+### [中文版本点此](https://github.com/sczhengyabin/Image-Downloader/blob/master/README_zh.md)
+
 ## 1. Introdoction
 
 Crawl and download images using Selenium + PhantomJS
