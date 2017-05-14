@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# author: Yabin Zheng
+# Email: sczhengyabin@hotmail.com
+
 from __future__ import print_function
 from urllib.parse import unquote, quote
 from selenium import webdriver
@@ -8,6 +11,8 @@ import time
 import sys
 import os
 import json
+import requests
+import ujson
 
 """ Scrape image urls of keywords from Google Image Search """
 
@@ -28,6 +33,12 @@ dcap["phantomjs.page.settings.userAgent"] = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.100"
 )
 
+
+def my_print(msg, quiet=False):
+    if not quiet:
+        print(msg)
+
+
 def google_gen_query_url(keywords, face_only=False, safe_mode=False):
     base_url = "https://www.google.com/search?tbm=isch&hl=en"
     keywords_str = "&q=" + quote(keywords)
@@ -46,7 +57,7 @@ def google_image_url_from_webpage(driver):
     try:
         show_more = driver.find_element_by_id("smb")
         show_more.click()
-        time.sleep(10)
+        time.sleep(3)
     except Exception as e:
         pass
     image_elements = driver.find_elements_by_class_name("rg_l")
@@ -117,8 +128,49 @@ def baidu_image_url_from_webpage(driver):
     return image_urls
 
 
-def crawl_image_urls(keywords, engine="Google", max_number=0,
-                     face_only=False, safe_mode=False, proxy=None, proxy_type="http"):
+def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
+                                  proxy=None, proxy_type=None):
+    base_url = "https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&ct=201326592"\
+               "&fp=result&ie=utf-8&oe=utf-8&st=-1"
+    keywords_str = "&word={}&queryWord={}".format(quote(keywords), quote(keywords))
+    query_url = base_url + keywords_str
+    query_url += "&face={}".format(1 if face_only else 0)
+
+    init_url = query_url + "&pn=0&rn=30"
+
+    init_json = json.loads(requests.get(init_url).text, encoding='utf-8')
+    total_num = init_json['listNum']
+
+    target_num = min(max_number, total_num)
+    print(total_num, target_num)
+
+    crawled_urls = list()
+    batch = 30
+    for i in range(0, int((total_num + batch - 1) / batch)):
+        url = query_url + "&pn={}&rn={}".format(i * batch, batch)
+        if proxy and proxy_type:
+            proxies = {"http": "{}://{}".format(proxy_type, proxy),
+                       "https": "{}://{}".format(proxy_type, proxy)}
+            response = requests.get(url, proxies=proxies)
+        else:
+            response = requests.get(url)
+        response.encoding = 'utf-8'
+        try:
+            res_json = json.loads(response.text, encoding='utf-8')
+            image_urls = [data['replaceUrl'][1]['ObjURL'] for data in res_json['data']
+                          if 'replaceUrl' in data.keys() and len(data['replaceUrl']) == 2]
+            crawled_urls += image_urls
+            if len(crawled_urls) >= target_num:
+                break
+        except Exception as e:
+            # print(e)
+            pass
+
+    return crawled_urls[:target_num]
+
+
+def crawl_image_urls(keywords, engine="Google", max_number=10000,
+                     face_only=False, safe_mode=False, proxy=None, proxy_type="http", quiet=False):
     """
     Scrape image urls of keywords from Google Image Search
     :param keywords: keywords you want to search
@@ -131,14 +183,14 @@ def crawl_image_urls(keywords, engine="Google", max_number=0,
     :return: list of scraped image urls
     """
 
-    print("\nScraping From {0} Image Search ...\n".format(engine))
-    print("Keywords:  " + keywords)
+    my_print("\nScraping From {0} Image Search ...\n".format(engine), quiet)
+    my_print("Keywords:  " + keywords, quiet)
     if max_number <= 0:
-        print("Number:  No limit")
+        my_print("Number:  No limit", quiet)
     else:
-        print("Number:  {}".format(max_number))
-    print("Face Only:  {}".format(str(face_only)))
-    print("Safe Mode:  {}".format(str(safe_mode)))
+        my_print("Number:  {}".format(max_number), quiet)
+    my_print("Face Only:  {}".format(str(face_only)), quiet)
+    my_print("Safe Mode:  {}".format(str(safe_mode)), quiet)
 
     if engine == "Google":
         query_url = google_gen_query_url(keywords, face_only, safe_mode)
@@ -149,11 +201,11 @@ def crawl_image_urls(keywords, engine="Google", max_number=0,
     else:
         return
 
-    print("Query URL:  " + query_url)
+    my_print("Query URL:  " + query_url, quiet)
 
     phantomjs_args = []
     if proxy is not None:
-        phantomjs_args = [
+        phantomjs_args += [
             "--proxy=" + proxy,
             "--proxy-type=" + proxy_type,
             ]
@@ -169,9 +221,11 @@ def crawl_image_urls(keywords, engine="Google", max_number=0,
         driver.get(query_url)
         image_urls = bing_image_url_from_webpage(driver)
     else:   # Baidu
-        driver.set_window_size(10000, 7500)
-        driver.get(query_url)
-        image_urls = baidu_image_url_from_webpage(driver)
+        # driver.set_window_size(10000, 7500)
+        # driver.get(query_url)
+        # image_urls = baidu_image_url_from_webpage(driver)
+        image_urls = baidu_get_image_url_using_api(keywords, max_number=max_number, face_only=face_only,
+                                                   proxy=proxy, proxy_type=proxy_type)
 
     driver.close()
 
@@ -180,6 +234,6 @@ def crawl_image_urls(keywords, engine="Google", max_number=0,
     else:
         output_num = max_number
 
-    print("\n== {0} out of {1} crawled images urls will be used.\n".format(output_num, len(image_urls)))
+    my_print("\n== {0} out of {1} crawled images urls will be used.\n".format(output_num, len(image_urls)), quiet)
 
     return image_urls[0:output_num]

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# author: Yabin Zheng
+# Email: sczhengyabin@hotmail.com
 
 from ui_mainwindow import Ui_MainWindow
 from ui_about import Ui_Dialog_about
