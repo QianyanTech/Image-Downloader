@@ -3,11 +3,9 @@
 # Email: sczhengyabin@hotmail.com
 
 from __future__ import print_function
-
+import sys
 from mainwindow import MainWindow
-
-from PyQt5.Qt import *
-import sys, os
+from PyQt5.Qt import QApplication
 
 
 def main():
@@ -20,12 +18,12 @@ def main():
         font.setFamily("Ubuntu")
     app.setFont(font)
 
-    """ Initialize User Interface """
     main_window = MainWindow()
     main_window.setWindowTitle("Image Downloader")
     main_window.show()
 
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()

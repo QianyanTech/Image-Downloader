@@ -1,22 +1,22 @@
+""" Crawl image urls from image search engine. """
 # -*- coding: utf-8 -*-
 # author: Yabin Zheng
 # Email: sczhengyabin@hotmail.com
 
 from __future__ import print_function
-from urllib.parse import unquote, quote
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
+
 import re
 import time
 import sys
 import os
 import json
+import codecs
+
+from urllib.parse import unquote, quote
+from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
 import requests
-import ujson
-
-""" Scrape image urls of keywords from Google Image Search """
-
-__author__ = "Yabin Zheng ( sczhengyabin@hotmail.com )"
+from concurrent import futures
 
 if getattr(sys, 'frozen', False):
     bundle_dir = sys._MEIPASS
@@ -93,7 +93,8 @@ def bing_image_url_from_webpage(driver):
         image_elements = driver.find_elements_by_class_name("iusc")
         if len(image_elements) > img_count:
             img_count = len(image_elements)
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            driver.execute_script(
+                "window.scrollTo(0, document.body.scrollHeight);")
         else:
             smb = driver.find_elements_by_class_name("btn_seemore")
             if len(smb) > 0 and smb[0].is_displayed():
@@ -132,41 +133,48 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
                                   proxy=None, proxy_type=None):
     base_url = "https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&ct=201326592"\
                "&fp=result&ie=utf-8&oe=utf-8&st=-1"
-    keywords_str = "&word={}&queryWord={}".format(quote(keywords), quote(keywords))
+    keywords_str = "&word={}&queryWord={}".format(
+        quote(keywords), quote(keywords))
     query_url = base_url + keywords_str
     query_url += "&face={}".format(1 if face_only else 0)
 
     init_url = query_url + "&pn=0&rn=30"
 
-    init_json = json.loads(requests.get(init_url).text, encoding='utf-8')
+    proxies = None
+    if proxy and proxy_type:
+        proxies = {"http": "{}://{}".format(proxy_type, proxy),
+                   "https": "{}://{}".format(proxy_type, proxy)}
+
+    res = requests.get(init_url, proxies=proxies)
+    init_json = json.loads(res.text.replace(r"\'", ""), encoding='utf-8')
     total_num = init_json['listNum']
 
     target_num = min(max_number, total_num)
-    print(total_num, target_num)
+    crawl_num = min(target_num * 2, total_num)
 
     crawled_urls = list()
-    batch = 30
-    for i in range(0, int((total_num + batch - 1) / batch)):
-        url = query_url + "&pn={}&rn={}".format(i * batch, batch)
-        if proxy and proxy_type:
-            proxies = {"http": "{}://{}".format(proxy_type, proxy),
-                       "https": "{}://{}".format(proxy_type, proxy)}
+    batch_size = 30
+
+    with futures.ThreadPoolExecutor(max_workers=10) as executor:
+        future_list = list()
+
+        def process_batch(batch_no, batch_size):
+            url = query_url + \
+                "&pn={}&rn={}".format(batch_no * batch_size, batch_size)
             response = requests.get(url, proxies=proxies)
-        else:
-            response = requests.get(url)
-        response.encoding = 'utf-8'
-        try:
+            response.encoding = 'utf-8'
             res_json = json.loads(response.text, encoding='utf-8')
             image_urls = [data['replaceUrl'][1]['ObjURL'] for data in res_json['data']
                           if 'replaceUrl' in data.keys() and len(data['replaceUrl']) == 2]
-            crawled_urls += image_urls
-            if len(crawled_urls) >= target_num:
-                break
-        except Exception as e:
-            # print(e)
-            pass
+            return image_urls
 
-    return crawled_urls[:target_num]
+        for i in range(0, int((crawl_num + batch_size - 1) / batch_size)):
+            future_list.append(executor.submit(process_batch, i, batch_size))
+        for future in futures.as_completed(future_list):
+            if future.exception() is None:
+                crawled_urls += future.result()
+
+    return crawled_urls[:min(len(crawled_urls), target_num)]
 
 
 def crawl_image_urls(keywords, engine="Google", max_number=10000,
@@ -187,6 +195,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     my_print("Keywords:  " + keywords, quiet)
     if max_number <= 0:
         my_print("Number:  No limit", quiet)
+        max_number = 10000
     else:
         my_print("Number:  {}".format(max_number), quiet)
     my_print("Face Only:  {}".format(str(face_only)), quiet)
@@ -208,7 +217,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
         phantomjs_args += [
             "--proxy=" + proxy,
             "--proxy-type=" + proxy_type,
-            ]
+        ]
     driver = webdriver.PhantomJS(executable_path=phantomjs_path,
                                  service_args=phantomjs_args, desired_capabilities=dcap)
 
@@ -234,6 +243,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     else:
         output_num = max_number
 
-    my_print("\n== {0} out of {1} crawled images urls will be used.\n".format(output_num, len(image_urls)), quiet)
+    my_print("\n== {0} out of {1} crawled images urls will be used.\n".format(
+        output_num, len(image_urls)), quiet)
 
     return image_urls[0:output_num]

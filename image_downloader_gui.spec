@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['image_downloader_gui.py'],
-             pathex=['F:\\Documents\\code\\python\\Google-Image-Downloader'],
+             pathex=['./'],
              binaries=None,
              datas=[("bin/phantomjs.exe", "bin/")],
              hiddenimports=[],

@@ -37,7 +37,8 @@ class AppConfig(object):
 
         str_paras += ' -j ' + str(self.num_threads)
 
-        str_paras += ' -o "' + self.output_dir + '/' + gen_valid_dir_name_for_keywords(self.keywords) + '"'
+        str_paras += ' -o "' + self.output_dir + '/' + \
+            gen_valid_dir_name_for_keywords(self.keywords) + '"'
 
         if self.face_only:
             str_paras += ' -F '
@@ -53,8 +54,6 @@ class AppConfig(object):
         str_paras += ' "' + self.keywords + '"'
 
         return str_paras
-
-    pass
 
 
 def gen_keywords_list_from_str(keywords_str, sep=","):

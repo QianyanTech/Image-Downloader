@@ -1,18 +1,15 @@
+""" Download image according to given urls and automatically rename them in order. """
 # -*- coding: utf-8 -*-
 # author: Yabin Zheng
 # Email: sczhengyabin@hotmail.com
 
 from __future__ import print_function
-import concurrent.futures
-import requests
+
 import shutil
 import imghdr
 import os
-
-""" Download image according to given urls and automatically rename them in order. """
-
-__author__ = "Yabin Zheng ( sczhengyabin@hotmail.com )"
-
+import concurrent.futures
+import requests
 
 headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -32,15 +29,17 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
             "https": proxy_type + "://" + proxy
         }
 
-    r = None
+    response = None
     file_path = os.path.join(dst_dir, file_name)
     try:
-        r = requests.get(image_url, headers=headers, timeout=timeout, proxies=proxies)
+        response = requests.get(
+            image_url, headers=headers, timeout=timeout, proxies=proxies)
         with open(file_path, 'wb') as f:
-            f.write(r.content)
-        r.close()
+            f.write(response.content)
+        response.close()
         file_type = imghdr.what(file_path)
-        if file_type is not None:
+        # if file_type is not None:
+        if file_type in ["jpg", "jpeg", "png", "bmp"]:
             new_file_name = "{}.{}".format(file_name, file_type)
             new_file_path = os.path.join(dst_dir, new_file_name)
             shutil.move(file_path, new_file_path)
@@ -49,8 +48,8 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
             os.remove(file_path)
             print("## Err:  {}".format(image_url))
     except Exception as e:
-        if r:
-            r.close()
+        if response:
+            response.close()
         print("## Fail:  {}  {}".format(image_url, e.args))
 
 
