@@ -72,7 +72,7 @@ def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, time
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
         for image_url in image_urls:
-            file_name = file_prefix + "_" + "%03d" % count
+            file_name = file_prefix + "_" + "%04d" % count
             futures.append(executor.submit(
                 download_image, image_url, dst_dir, file_name, timeout, proxy_type, proxy))
             count += 1

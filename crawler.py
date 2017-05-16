@@ -57,7 +57,7 @@ def google_image_url_from_webpage(driver):
     try:
         show_more = driver.find_element_by_id("smb")
         show_more.click()
-        time.sleep(3)
+        time.sleep(5)
     except Exception as e:
         pass
     image_elements = driver.find_elements_by_class_name("rg_l")
@@ -131,8 +131,17 @@ def baidu_image_url_from_webpage(driver):
 
 def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
                                   proxy=None, proxy_type=None):
+    def decode_url(url):
+        in_table = '0123456789abcdefghijklmnopqrstuvw'
+        out_table = '7dgjmoru140852vsnkheb963wtqplifca'
+        translate_table = str.maketrans(in_table, out_table)
+        mapping = {'_z2C$q': ':', '_z&e3B': '.', 'AzdH3F': '/'}
+        for k, v in mapping.items():
+            url = url.replace(k, v)
+        return url.translate(translate_table)
+
     base_url = "https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&ct=201326592"\
-               "&fp=result&ie=utf-8&oe=utf-8&st=-1"
+               "&lm=7&fp=result&ie=utf-8&oe=utf-8&st=-1"
     keywords_str = "&word={}&queryWord={}".format(
         quote(keywords), quote(keywords))
     query_url = base_url + keywords_str
@@ -146,7 +155,7 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
                    "https": "{}://{}".format(proxy_type, proxy)}
 
     res = requests.get(init_url, proxies=proxies)
-    init_json = json.loads(res.text.replace(r"\'", ""), encoding='utf-8')
+    init_json = json.loads(res.text.replace(r"\'", ""), encoding='utf-8', strict=False)
     total_num = init_json['listNum']
 
     target_num = min(max_number, total_num)
@@ -155,17 +164,31 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
     crawled_urls = list()
     batch_size = 30
 
-    with futures.ThreadPoolExecutor(max_workers=10) as executor:
+    with futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_list = list()
 
         def process_batch(batch_no, batch_size):
+            image_urls = list()
             url = query_url + \
                 "&pn={}&rn={}".format(batch_no * batch_size, batch_size)
-            response = requests.get(url, proxies=proxies)
+            try_time = 0
+            while True:
+                try:
+                    response = requests.get(url, proxies=proxies)
+                    break
+                except Exception as e:
+                    try_time += 1
+                    if try_time > 3:
+                        print(e)
+                        return image_urls
             response.encoding = 'utf-8'
-            res_json = json.loads(response.text, encoding='utf-8')
-            image_urls = [data['replaceUrl'][1]['ObjURL'] for data in res_json['data']
-                          if 'replaceUrl' in data.keys() and len(data['replaceUrl']) == 2]
+            res_json = json.loads(response.text.replace(r"\'", ""), encoding='utf-8', strict=False)
+            for data in res_json['data']:
+                if 'objURL' in data.keys():
+                    image_urls.append(decode_url(data['objURL']))
+                elif 'replaceUrl' in data.keys() and len(data['replaceUrl']) == 2:
+                    image_urls.append(data['replaceUrl'][1]['ObjURL'])
+
             return image_urls
 
         for i in range(0, int((crawl_num + batch_size - 1) / batch_size)):
@@ -173,6 +196,8 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
         for future in futures.as_completed(future_list):
             if future.exception() is None:
                 crawled_urls += future.result()
+            else:
+                print(future.exception())
 
     return crawled_urls[:min(len(crawled_urls), target_num)]
 
