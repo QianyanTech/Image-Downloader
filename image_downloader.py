@@ -48,7 +48,8 @@ def main(argv):
     crawled_urls = crawler.crawl_image_urls(args.keywords,
                                             engine=args.engine, max_number=args.max_number,
                                             face_only=args.face_only, safe_mode=args.safe_mode,
-                                            proxy_type=proxy_type, proxy=proxy)
+                                            proxy_type=proxy_type, proxy=proxy,
+                                            browser="phantomjs")
     downloader.download_images(image_urls=crawled_urls, dst_dir=args.output,
                                concurrency=args.num_threads, timeout=args.timeout,
                                proxy_type=proxy_type, proxy=proxy,

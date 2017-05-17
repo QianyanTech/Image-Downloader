@@ -203,7 +203,8 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
 
 
 def crawl_image_urls(keywords, engine="Google", max_number=10000,
-                     face_only=False, safe_mode=False, proxy=None, proxy_type="http", quiet=False):
+                     face_only=False, safe_mode=False, proxy=None, 
+                     proxy_type="http", quiet=False, browser="phantomjs"):
     """
     Scrape image urls of keywords from Google Image Search
     :param keywords: keywords you want to search
@@ -237,14 +238,20 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
 
     my_print("Query URL:  " + query_url, quiet)
 
-    phantomjs_args = []
-    if proxy is not None:
-        phantomjs_args += [
-            "--proxy=" + proxy,
-            "--proxy-type=" + proxy_type,
-        ]
-    driver = webdriver.PhantomJS(executable_path=phantomjs_path,
-                                 service_args=phantomjs_args, desired_capabilities=dcap)
+    if browser == "chrome":
+        chrome_options = webdriver.ChromeOptions()
+        if proxy is not None and proxy_type is not None:
+            chrome_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
+        driver = webdriver.Chrome(executable_path="./chromedriver", chrome_options=chrome_options)
+    else:
+        phantomjs_args = []
+        if proxy is not None and proxy_type is not None:
+            phantomjs_args += [
+                "--proxy=" + proxy,
+                "--proxy-type=" + proxy_type,
+            ]
+        driver = webdriver.PhantomJS(executable_path=phantomjs_path,
+                                     service_args=phantomjs_args, desired_capabilities=dcap)
 
     if engine == "Google":
         driver.set_window_size(10000, 7500)
