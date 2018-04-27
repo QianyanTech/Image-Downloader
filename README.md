@@ -62,7 +62,7 @@ pip3 install -r requirements.txt
 ```
 ## 4. Usage
 ### 4.1 GUI
-![](http://p1.bqimg.com/567571/2d72755a4d3fc319.png)
+![](/GUI.png)
 ### 4.2 CMD
 ```
 usage: image_downloader.py [-h] [--engine {Google,Bing,Baidu}]

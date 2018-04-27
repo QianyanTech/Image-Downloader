@@ -51,7 +51,7 @@ apt-get install python3-pip python3-pyqt5 pyqt5-dev-tools
 下载完成后，将phantomjs文件路径添加至PATH环境变量，或者将其拷贝到/usr/local/bin文件夹。
 ## 4. 如何使用
 ### 4.1 图形界面
-![](http://p1.bqimg.com/567571/2d72755a4d3fc319.png)
+![](/GUI.png)
 ### 4.2 命令行
 ```
 usage: image_downloader.py [-h] [--engine {Google,Bing,Baidu}]
