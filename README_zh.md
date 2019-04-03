@@ -1,5 +1,7 @@
 # Image Downloader
 
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+
 ## 1. 简介
 
 + 从图片搜索引擎，爬取关键字搜索的原图URL并下载
@@ -62,3 +64,8 @@ usage: image_downloader.py [-h] [--engine {Google,Bing,Baidu}]
                            [--proxy_socks5 PROXY_SOCKS5]
                            keywords
 ```
+
+## 许可
+
+- MIT License
+- 996ICU License
