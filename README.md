@@ -1,5 +1,7 @@
 # Image Downloader
 
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+
 ### [中文版本点此](https://github.com/sczhengyabin/Image-Downloader/blob/master/README_zh.md)
 
 ## 1. Introdoction
@@ -73,3 +75,7 @@ usage: image_downloader.py [-h] [--engine {Google,Bing,Baidu}]
                            [--proxy_socks5 PROXY_SOCKS5]
                            keywords
 ```
+## License
+
+- MIT License
+- 996ICU License
