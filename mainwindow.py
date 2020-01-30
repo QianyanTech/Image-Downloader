@@ -128,7 +128,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """ Keywords List """
         if self.checkBox_from_file.isChecked():
             str_path = self.lineEdit_path2file.text()
-            keywords_list = utils. gen_keywords_list_from_file(str_path)
+            keywords_list = utils.gen_keywords_list_from_file(str_path)
         else:
             str_keywords = self.lineEdit_keywords.text()
             keywords_list = utils.gen_keywords_list_from_str(str_keywords, ",")
