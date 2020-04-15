@@ -12,6 +12,8 @@ def gen_valid_dir_name_for_keywords(keywords):
 class AppConfig(object):
     def __init__(self):
         self.engine = "Google"
+        
+        self.driver = "chrome_headless"
 
         self.keywords = ""
 
@@ -30,8 +32,10 @@ class AppConfig(object):
 
     def to_command_paras(self):
         str_paras = ""
-
+ 
         str_paras += ' -e ' + self.engine
+
+        str_paras += ' -d ' + self.driver
 
         str_paras += ' -n ' + str(self.max_number)
 

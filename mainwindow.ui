@@ -193,7 +193,16 @@ QProgressBar::chunk {
        <property name="spacing">
         <number>20</number>
        </property>
-       <property name="margin">
+       <property name="leftMargin">
+        <number>30</number>
+       </property>
+       <property name="topMargin">
+        <number>30</number>
+       </property>
+       <property name="rightMargin">
+        <number>30</number>
+       </property>
+       <property name="bottomMargin">
         <number>30</number>
        </property>
        <item>
@@ -282,7 +291,7 @@ QProgressBar::chunk {
       <property name="checkable">
        <bool>false</bool>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout" stretch="1,2,1,2,1">
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="1,1,2,1,2,1">
        <property name="leftMargin">
         <number>20</number>
        </property>
@@ -290,7 +299,7 @@ QProgressBar::chunk {
         <number>20</number>
        </property>
        <item>
-        <widget class="QWidget" name="widget" native="true">
+        <widget class="QWidget" name="widget_engine" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QRadioButton" name="radioButton_google">
@@ -353,7 +362,52 @@ QProgressBar::chunk {
         </widget>
        </item>
        <item>
-        <widget class="QWidget" name="widget_2" native="true">
+        <widget class="QWidget" name="widget_driver" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QRadioButton" name="radioButton_chrome_headless">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>ChromeHeadless</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_chrome">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Chrome</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_phantomjs">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>PhantomJs</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_keywords" native="true">
          <layout class="QGridLayout" name="gridLayout" columnstretch="2,6,1">
           <item row="0" column="0">
            <widget class="QLabel" name="label">
@@ -461,7 +515,7 @@ QProgressBar::chunk {
         </widget>
        </item>
        <item>
-        <widget class="QWidget" name="widget_6" native="true">
+        <widget class="QWidget" name="widget_output" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="2,6,1">
           <property name="spacing">
            <number>6</number>
@@ -683,7 +737,7 @@ per keywords</string>
         </widget>
        </item>
        <item>
-        <widget class="QWidget" name="widget_4" native="true">
+        <widget class="QWidget" name="widget_proxy" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,5">
           <property name="topMargin">
            <number>9</number>
@@ -715,7 +769,16 @@ per keywords</string>
              <bool>false</bool>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,4">
-             <property name="margin">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
               <number>0</number>
              </property>
              <item>
@@ -878,11 +941,11 @@ per keywords</string>
    <hints>
     <hint type="sourcelabel">
      <x>157</x>
-     <y>158</y>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
-     <x>531</x>
-     <y>125</y>
+     <x>599</x>
+     <y>163</y>
     </hint>
    </hints>
   </connection>
@@ -894,11 +957,11 @@ per keywords</string>
    <hints>
     <hint type="sourcelabel">
      <x>157</x>
-     <y>158</y>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
      <x>599</x>
-     <y>158</y>
+     <y>193</y>
     </hint>
    </hints>
   </connection>
@@ -910,11 +973,11 @@ per keywords</string>
    <hints>
     <hint type="sourcelabel">
      <x>157</x>
-     <y>158</y>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
      <x>518</x>
-     <y>157</y>
+     <y>192</y>
     </hint>
    </hints>
   </connection>
@@ -957,8 +1020,8 @@ per keywords</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>165</x>
-     <y>76</y>
+     <x>204</x>
+     <y>73</y>
     </hint>
     <hint type="destinationlabel">
      <x>220</x>
@@ -977,8 +1040,8 @@ per keywords</string>
      <y>73</y>
     </hint>
     <hint type="destinationlabel">
-     <x>246</x>
-     <y>256</y>
+     <x>293</x>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
@@ -993,8 +1056,8 @@ per keywords</string>
      <y>68</y>
     </hint>
     <hint type="destinationlabel">
-     <x>285</x>
-     <y>262</y>
+     <x>293</x>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
@@ -1005,12 +1068,12 @@ per keywords</string>
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>83</x>
-     <y>76</y>
+     <x>122</x>
+     <y>73</y>
     </hint>
     <hint type="destinationlabel">
-     <x>183</x>
-     <y>260</y>
+     <x>293</x>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
@@ -1021,18 +1084,34 @@ per keywords</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>92</x>
-     <y>158</y>
+     <x>131</x>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
-     <x>544</x>
-     <y>154</y>
+     <x>599</x>
+     <y>193</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_baidu</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget_driver</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>484</x>
+     <y>60</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>382</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

@@ -17,6 +17,8 @@ def main(argv):
                         help='Keywords to search. ("in quotes")')
     parser.add_argument("--engine", "-e", type=str, default="Google",
                         help="Image search engine.", choices=["Google", "Bing", "Baidu"])
+    parser.add_argument("--driver", "-d", type=str, default="chrome_headless",
+                        help="Image search engine.", choices=["chrome_headless", "chrome", "phantomjs"])
     parser.add_argument("--max-number", "-n", type=int, default=100,
                         help="Max number of images download for the keywords.")
     parser.add_argument("--num-threads", "-j", type=int, default=50,
@@ -49,7 +51,7 @@ def main(argv):
                                             engine=args.engine, max_number=args.max_number,
                                             face_only=args.face_only, safe_mode=args.safe_mode,
                                             proxy_type=proxy_type, proxy=proxy,
-                                            browser="phantomjs")
+                                            browser=args.driver)
     downloader.download_images(image_urls=crawled_urls, dst_dir=args.output,
                                concurrency=args.num_threads, timeout=args.timeout,
                                proxy_type=proxy_type, proxy=proxy,

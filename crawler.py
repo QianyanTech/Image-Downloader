@@ -11,6 +11,7 @@ import sys
 import os
 import json
 import codecs
+import shutil
 
 from urllib.parse import unquote, quote
 from selenium import webdriver
@@ -22,11 +23,6 @@ if getattr(sys, 'frozen', False):
     bundle_dir = sys._MEIPASS
 else:
     bundle_dir = os.path.dirname(os.path.abspath(__file__))
-
-if sys.platform.startswith("win"):
-    phantomjs_path = os.path.join(bundle_dir + "/bin/phantomjs.exe")
-else:
-    phantomjs_path = "phantomjs"
 
 dcap = dict(DesiredCapabilities.PHANTOMJS)
 dcap["phantomjs.page.settings.userAgent"] = (
@@ -52,19 +48,54 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False):
     return query_url
 
 
-def google_image_url_from_webpage(driver):
-    # time.sleep(10)
-    try:
-        show_more = driver.find_element_by_id("smb")
-        show_more.click()
-        time.sleep(5)
-    except Exception as e:
-        pass
-    image_elements = driver.find_elements_by_class_name("rg_l")
-    image_urls = list()
-    url_pattern = "imgurl=\S*&amp;imgrefurl"
+def google_image_url_from_webpage(driver, max_number, quiet=False):
+    thumb_elements_old = []
+    thumb_elements = []
+    while True:
+        try:
+            thumb_elements = driver.find_elements_by_class_name("rg_i")
+            my_print("Find {} images.".format(len(thumb_elements)), quiet)
+            if len(thumb_elements) >= max_number:
+                break
+            if len(thumb_elements) == len(thumb_elements_old):
+                break
+            thumb_elements_old = thumb_elements
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)
+            show_more = driver.find_elements_by_class_name("mye4qd")
+            if len(show_more) == 1 and show_more[0].is_displayed() and show_more[0].is_enabled():
+                my_print("Click show_more button.", quiet)
+                show_more[0].click()
+            time.sleep(3)
+        except Exception as e:
+            print("Exception ", e)
+            pass
+    
+    if len(thumb_elements) == 0:
+        return []
 
-    for image_element in image_elements:
+    my_print("Click on each thumbnail image to get image url, may take a moment ...", quiet)
+
+    retry_click = []
+    for i, elem in enumerate(thumb_elements):
+        if i != 0 and i % 50 == 0:
+            my_print("{} thumbnail clicked.".format(i), quiet)
+        if not elem.is_displayed() or not elem.is_enabled():
+            retry_click.append(elem)
+            continue
+        elem.click()
+
+    if len(retry_click) > 0:    
+        my_print("Retry some failed clicks ...", quiet)
+        for elem in retry_click:
+            if elem.is_displayed() and elem.is_enabled():
+                elem.click()
+    
+    image_elements = driver.find_elements_by_class_name("islib")
+    image_urls = list()
+    url_pattern = r"imgurl=\S*&amp;imgrefurl"
+
+    for image_element in image_elements[:max_number]:
         outer_html = image_element.get_attribute("outerHTML")
         re_group = re.search(url_pattern, outer_html)
         if re_group is not None:
@@ -212,8 +243,9 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     :param max_number: limit the max number of image urls the function output, equal or less than 0 for unlimited
     :param face_only: image type set to face only, provided by Google
     :param safe_mode: switch for safe mode of Google Search
-    :param proxy: proxy address, example: socks5 192.168.0.91:1080
+    :param proxy: proxy address, example: socks5 127.0.0.1:1080
     :param proxy_type: socks5, http
+    :param browser: browser to use when crawl image urls from Google & Bing 
     :return: list of scraped image urls
     """
 
@@ -238,12 +270,19 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
 
     my_print("Query URL:  " + query_url, quiet)
 
-    if browser == "chrome":
+    browser = str.lower(browser)
+    if "chrome" in browser:
+        chrome_path = shutil.which("chromedriver")
+        chrome_path = "./bin/chromedriver" if chrome_path is None else chrome_path
         chrome_options = webdriver.ChromeOptions()
+        if "headless" in browser:
+            chrome_options.add_argument("headless")
         if proxy is not None and proxy_type is not None:
             chrome_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
-        driver = webdriver.Chrome(executable_path="./chromedriver", chrome_options=chrome_options)
+        driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
     else:
+        phantomjs_path = shutil.which("phantomjs")
+        phantomjs_path = "./bin/phantomjs" if phantomjs_path is None else phantomjs_path
         phantomjs_args = []
         if proxy is not None and proxy_type is not None:
             phantomjs_args += [
@@ -254,9 +293,9 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
                                      service_args=phantomjs_args, desired_capabilities=dcap)
 
     if engine == "Google":
-        driver.set_window_size(10000, 7500)
+        driver.set_window_size(1920, 1080)
         driver.get(query_url)
-        image_urls = google_image_url_from_webpage(driver)
+        image_urls = google_image_url_from_webpage(driver, max_number, quiet)
     elif engine == "Bing":
         driver.set_window_size(1920, 1080)
         driver.get(query_url)

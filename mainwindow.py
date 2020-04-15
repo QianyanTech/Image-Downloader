@@ -103,6 +103,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         elif self.radioButton_baidu.isChecked():
             config.engine = "Baidu"
 
+        """ Driver """
+        if self.radioButton_chrome_headless.isChecked():
+            config.driver = "chrome_headless"
+        elif self.radioButton_chrome.isChecked():
+            config.driver = "chrome"
+        elif self.radioButton_phantomjs.isChecked():
+            config.driver = "phantomjs"
+
         """ Output directory """
         config.output_dir = self.lineEdit_output.text()
 
