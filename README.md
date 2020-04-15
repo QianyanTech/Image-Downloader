@@ -31,7 +31,7 @@ Using python3 and PyQt5
 + Download the corresponding version of chromedriver from [here](https://chromedriver.chromium.org/downloads)
 + Copy `chromedriver` binary to ${project_directory}/bin/ or add it to PATH.
 
-### 3.3 Download and setup phantomjs [depracated]
+### 3.3 Download and setup phantomjs [deprecated]
 
 + Official phantomjs prebuilt executable can be downloaded from [here](https://bitbucket.org/ariya/phantomjs/downloads)
 + Copy `phantomjs` to ${project_directory}/bin/ or add it to PATH.
