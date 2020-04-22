@@ -1,5 +1,4 @@
 future
-futures
 PySocks
 requests
 selenium

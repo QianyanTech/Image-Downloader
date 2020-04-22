@@ -46,6 +46,11 @@ pip3 install -r requirements.txt
 
 ### 4.1 GUI
 
+Run `image_downloader_gui.py` script to yank GUI:
+```bash
+python image_downloader_gui.py
+```
+
 ![GUI](/GUI.png)
 
 ### 4.2 CMD
