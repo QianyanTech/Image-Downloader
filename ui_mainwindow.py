@@ -544,7 +544,7 @@ class Ui_MainWindow(object):
         self.groupBox_2.setTitle(_translate("MainWindow", "Control"))
         self.pushButton_start.setText(_translate("MainWindow", "Start"))
         self.pushButton_start.setShortcut(_translate("MainWindow", "Return"))
-        self.pushButton_cancel.setText(_translate("MainWindow", "&Cancle"))
+        self.pushButton_cancel.setText(_translate("MainWindow", "&Cancel"))
         self.groupBox_config.setTitle(_translate("MainWindow", "Config"))
         self.radioButton_google.setText(_translate("MainWindow", "&Google"))
         self.radioButton_bing.setText(_translate("MainWindow", "&Bing"))

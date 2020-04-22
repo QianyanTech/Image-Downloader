@@ -45,6 +45,11 @@ pip3 install -r requirements.txt
 
 ### 4.1 图形界面
 
+运行`image_downloader_gui.py`脚本以启动GUI界面
+```bash
+python image_downloader_gui.py
+```
+
 ![GUI](/GUI.png)
 
 ### 4.2 命令行
