@@ -78,18 +78,25 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
 
     retry_click = []
     for i, elem in enumerate(thumb_elements):
-        if i != 0 and i % 50 == 0:
-            my_print("{} thumbnail clicked.".format(i), quiet)
-        if not elem.is_displayed() or not elem.is_enabled():
+        try:
+            if i != 0 and i % 50 == 0:
+                my_print("{} thumbnail clicked.".format(i), quiet)
+            if not elem.is_displayed() or not elem.is_enabled():
+                retry_click.append(elem)
+                continue
+            elem.click()
+        except Exception as e:
+            print("Error while clicking in thumbnail:", e)
             retry_click.append(elem)
-            continue
-        elem.click()
 
     if len(retry_click) > 0:    
         my_print("Retry some failed clicks ...", quiet)
         for elem in retry_click:
-            if elem.is_displayed() and elem.is_enabled():
-                elem.click()
+            try:
+                if elem.is_displayed() and elem.is_enabled():
+                    elem.click()
+            except Exception as e:
+                print("Error while retrying click:", e)
     
     image_elements = driver.find_elements_by_class_name("islib")
     image_urls = list()
