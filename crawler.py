@@ -192,7 +192,17 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
         proxies = {"http": "{}://{}".format(proxy_type, proxy),
                    "https": "{}://{}".format(proxy_type, proxy)}
 
-    res = requests.get(init_url, proxies=proxies)
+    headers = {
+        #'Accept-Encoding': 'gzip, deflate, sdch',
+        #'Accept-Language': 'en-US,en;q=0.8',
+        #'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+        #'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,/;q=0.8',
+        #'Cache-Control': 'max-age=0',
+        #'Connection': 'keep-alive',
+    }
+
+    res = requests.get(init_url, proxies=proxies, headers=headers)
     init_json = json.loads(res.text.replace(r"\'", ""), encoding='utf-8', strict=False)
     total_num = init_json['listNum']
 
@@ -212,7 +222,7 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
             try_time = 0
             while True:
                 try:
-                    response = requests.get(url, proxies=proxies)
+                    response = requests.get(url, proxies=proxies, headers=headers)
                     break
                 except Exception as e:
                     try_time += 1
@@ -277,27 +287,28 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
 
     my_print("Query URL:  " + query_url, quiet)
 
-    browser = str.lower(browser)
-    if "chrome" in browser:
-        chrome_path = shutil.which("chromedriver")
-        chrome_path = "./bin/chromedriver" if chrome_path is None else chrome_path
-        chrome_options = webdriver.ChromeOptions()
-        if "headless" in browser:
-            chrome_options.add_argument("headless")
-        if proxy is not None and proxy_type is not None:
-            chrome_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
-        driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
-    else:
-        phantomjs_path = shutil.which("phantomjs")
-        phantomjs_path = "./bin/phantomjs" if phantomjs_path is None else phantomjs_path
-        phantomjs_args = []
-        if proxy is not None and proxy_type is not None:
-            phantomjs_args += [
-                "--proxy=" + proxy,
-                "--proxy-type=" + proxy_type,
-            ]
-        driver = webdriver.PhantomJS(executable_path=phantomjs_path,
-                                     service_args=phantomjs_args, desired_capabilities=dcap)
+    if engine != "Baidu":
+        browser = str.lower(browser)
+        if "chrome" in browser:
+            chrome_path = shutil.which("chromedriver")
+            chrome_path = "./bin/chromedriver" if chrome_path is None else chrome_path
+            chrome_options = webdriver.ChromeOptions()
+            if "headless" in browser:
+                chrome_options.add_argument("headless")
+            if proxy is not None and proxy_type is not None:
+                chrome_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
+            driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
+        else:
+            phantomjs_path = shutil.which("phantomjs")
+            phantomjs_path = "./bin/phantomjs" if phantomjs_path is None else phantomjs_path
+            phantomjs_args = []
+            if proxy is not None and proxy_type is not None:
+                phantomjs_args += [
+                    "--proxy=" + proxy,
+                    "--proxy-type=" + proxy_type,
+                ]
+            driver = webdriver.PhantomJS(executable_path=phantomjs_path,
+                                        service_args=phantomjs_args, desired_capabilities=dcap)
 
     if engine == "Google":
         driver.set_window_size(1920, 1080)
@@ -313,8 +324,8 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
         # image_urls = baidu_image_url_from_webpage(driver)
         image_urls = baidu_get_image_url_using_api(keywords, max_number=max_number, face_only=face_only,
                                                    proxy=proxy, proxy_type=proxy_type)
-
-    driver.close()
+    if engine != "Baidu":
+        driver.close()
 
     if max_number > len(image_urls):
         output_num = len(image_urls)
