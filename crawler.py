@@ -111,12 +111,24 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
     return image_urls
 
 
-def bing_gen_query_url(keywords, face_only=False, safe_mode=False):
+def bing_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=None, color=None):
     base_url = "https://www.bing.com/images/search?"
     keywords_str = "&q=" + quote(keywords)
     query_url = base_url + keywords_str
+    filter_url = "&qft="
     if face_only is True:
-        query_url += "&qft=+filterui:face-face"
+        filter_url += "+filterui:face-face"
+    
+    if image_type is not None:
+        filter_url += "+filterui:photo-{}".format(image_type)
+    
+    if color is not None:
+        if color == "bw" or color == "color":
+            filter_url += "+filterui:color2-{}".format(color.lower())
+        else:
+            filter_url += "+filterui:color2-FGcls_{}".format(color.upper())
+
+    query_url += filter_url
 
     return query_url
 
@@ -252,7 +264,7 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
 
 def crawl_image_urls(keywords, engine="Google", max_number=10000,
                      face_only=False, safe_mode=False, proxy=None, 
-                     proxy_type="http", quiet=False, browser="phantomjs"):
+                     proxy_type="http", quiet=False, browser="phantomjs", image_type=None, color=None):
     """
     Scrape image urls of keywords from Google Image Search
     :param keywords: keywords you want to search
@@ -279,7 +291,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     if engine == "Google":
         query_url = google_gen_query_url(keywords, face_only, safe_mode)
     elif engine == "Bing":
-        query_url = bing_gen_query_url(keywords, face_only, safe_mode)
+        query_url = bing_gen_query_url(keywords, face_only, safe_mode, image_type, color)
     elif engine == "Baidu":
         query_url = baidu_gen_query_url(keywords, face_only, safe_mode)
     else:
