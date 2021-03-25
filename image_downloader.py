@@ -35,10 +35,12 @@ def main(argv):
                         help="Set http proxy (e.g. 192.168.0.2:8080)")
     parser.add_argument("--proxy_socks5", "-ps", type=str, default=None,
                         help="Set socks5 proxy (e.g. 192.168.0.2:1080)")
+    # type is not supported for Baidu
     parser.add_argument("--type", "-ty", type=str, default=None,
                         help="What kinds of images to download.", choices=["clipart", "linedrawing", "photograph"])
-    # color for colored images, bw for black&white images, other color contains Red, orange, yellow, green
+    # Bing: color for colored images, bw for black&white images, other color contains Red, orange, yellow, green
     # Teal, Blue, Purple, Pink, Brown, Black, Gray, White
+    # Baidu: white, bw, black, pink, blue, red, yellow, purple, green, teal, orange, brown
     parser.add_argument("--color", "-cl", type=str, default=None,
                         help="Specify the color of desired images.") 
 

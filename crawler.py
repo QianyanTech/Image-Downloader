@@ -159,12 +159,21 @@ def bing_image_url_from_webpage(driver):
     return image_urls
 
 
-def baidu_gen_query_url(keywords, face_only=False, safe_mode=False):
+baidu_color_code = {
+    "white": 1024, "bw": 2048, "black": 512, "pink": 64, "blue": 16, "red": 1,
+    "yellow": 2, "purple": 32, "green": 4, "teal": 8, "orange": 256, "brown": 128
+}
+
+def baidu_gen_query_url(keywords, face_only=False, safe_mode=False, color=None):
     base_url = "https://image.baidu.com/search/index?tn=baiduimage"
     keywords_str = "&word=" + quote(keywords)
     query_url = base_url + keywords_str
     if face_only is True:
         query_url += "&face=1"
+    print(color, baidu_color_code[color.lower()])
+    if color is not None:
+        query_url += "&ic={}".format(baidu_color_code[color.lower()])
+    print(query_url)
     return query_url
 
 
@@ -204,14 +213,20 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
         proxies = {"http": "{}://{}".format(proxy_type, proxy),
                    "https": "{}://{}".format(proxy_type, proxy)}
 
+    # headers = {
+    #     #'Accept-Encoding': 'gzip, deflate, sdch',
+    #     #'Accept-Language': 'en-US,en;q=0.8',
+    #     #'Upgrade-Insecure-Requests': '1',
+    #     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+    #     #'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,/;q=0.8',
+    #     #'Cache-Control': 'max-age=0',
+    #     #'Connection': 'keep-alive',
+    # }
     headers = {
-        #'Accept-Encoding': 'gzip, deflate, sdch',
-        #'Accept-Language': 'en-US,en;q=0.8',
-        #'Upgrade-Insecure-Requests': '1',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
-        #'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,/;q=0.8',
-        #'Cache-Control': 'max-age=0',
-        #'Connection': 'keep-alive',
+        'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
     }
 
     res = requests.get(init_url, proxies=proxies, headers=headers)
@@ -293,7 +308,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     elif engine == "Bing":
         query_url = bing_gen_query_url(keywords, face_only, safe_mode, image_type, color)
     elif engine == "Baidu":
-        query_url = baidu_gen_query_url(keywords, face_only, safe_mode)
+        query_url = baidu_gen_query_url(keywords, face_only, safe_mode, color)
     else:
         return
 
