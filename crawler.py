@@ -35,16 +35,34 @@ def my_print(msg, quiet=False):
         print(msg)
 
 
-def google_gen_query_url(keywords, face_only=False, safe_mode=False):
+def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=None, color=None):
     base_url = "https://www.google.com/search?tbm=isch&hl=en"
     keywords_str = "&q=" + quote(keywords)
     query_url = base_url + keywords_str
-    if face_only is True:
-        query_url += "&tbs=itp:face"
+    
     if safe_mode is True:
         query_url += "&safe=on"
     else:
         query_url += "&safe=off"
+    
+    filter_url = "&tbs="
+
+    if image_type.lower() == "linedrawing":
+        image_type = "lineart"
+
+    if color is not None:
+        if color == "bw":
+            filter_url += "ic:gray%2C"
+        else:
+            filter_url += "ic:specific%2Cisc:{}%2C".format(color.lower())
+    
+    if image_type is not None:
+        filter_url += "itp:{}".format(image_type)
+
+    if face_only is True:
+        filter_url += "itp:face"
+
+    query_url += filter_url
     return query_url
 
 
@@ -304,7 +322,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     my_print("Safe Mode:  {}".format(str(safe_mode)), quiet)
 
     if engine == "Google":
-        query_url = google_gen_query_url(keywords, face_only, safe_mode)
+        query_url = google_gen_query_url(keywords, face_only, safe_mode, image_type, color)
     elif engine == "Bing":
         query_url = bing_gen_query_url(keywords, face_only, safe_mode, image_type, color)
     elif engine == "Baidu":

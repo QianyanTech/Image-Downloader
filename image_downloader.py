@@ -41,6 +41,7 @@ def main(argv):
     # Bing: color for colored images, bw for black&white images, other color contains Red, orange, yellow, green
     # Teal, Blue, Purple, Pink, Brown, Black, Gray, White
     # Baidu: white, bw, black, pink, blue, red, yellow, purple, green, teal, orange, brown
+    # Google: bw, red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown
     parser.add_argument("--color", "-cl", type=str, default=None,
                         help="Specify the color of desired images.") 
 
