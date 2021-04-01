@@ -35,16 +35,34 @@ def my_print(msg, quiet=False):
         print(msg)
 
 
-def google_gen_query_url(keywords, face_only=False, safe_mode=False):
+def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=None, color=None):
     base_url = "https://www.google.com/search?tbm=isch&hl=en"
     keywords_str = "&q=" + quote(keywords)
     query_url = base_url + keywords_str
-    if face_only is True:
-        query_url += "&tbs=itp:face"
+    
     if safe_mode is True:
         query_url += "&safe=on"
     else:
         query_url += "&safe=off"
+    
+    filter_url = "&tbs="
+
+    if image_type.lower() == "linedrawing":
+        image_type = "lineart"
+
+    if color is not None:
+        if color == "bw":
+            filter_url += "ic:gray%2C"
+        else:
+            filter_url += "ic:specific%2Cisc:{}%2C".format(color.lower())
+    
+    if image_type is not None:
+        filter_url += "itp:{}".format(image_type)
+
+    if face_only is True:
+        filter_url += "itp:face"
+
+    query_url += filter_url
     return query_url
 
 
@@ -111,12 +129,24 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
     return image_urls
 
 
-def bing_gen_query_url(keywords, face_only=False, safe_mode=False):
+def bing_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=None, color=None):
     base_url = "https://www.bing.com/images/search?"
     keywords_str = "&q=" + quote(keywords)
     query_url = base_url + keywords_str
+    filter_url = "&qft="
     if face_only is True:
-        query_url += "&qft=+filterui:face-face"
+        filter_url += "+filterui:face-face"
+    
+    if image_type is not None:
+        filter_url += "+filterui:photo-{}".format(image_type)
+    
+    if color is not None:
+        if color == "bw" or color == "color":
+            filter_url += "+filterui:color2-{}".format(color.lower())
+        else:
+            filter_url += "+filterui:color2-FGcls_{}".format(color.upper())
+
+    query_url += filter_url
 
     return query_url
 
@@ -147,12 +177,21 @@ def bing_image_url_from_webpage(driver):
     return image_urls
 
 
-def baidu_gen_query_url(keywords, face_only=False, safe_mode=False):
+baidu_color_code = {
+    "white": 1024, "bw": 2048, "black": 512, "pink": 64, "blue": 16, "red": 1,
+    "yellow": 2, "purple": 32, "green": 4, "teal": 8, "orange": 256, "brown": 128
+}
+
+def baidu_gen_query_url(keywords, face_only=False, safe_mode=False, color=None):
     base_url = "https://image.baidu.com/search/index?tn=baiduimage"
     keywords_str = "&word=" + quote(keywords)
     query_url = base_url + keywords_str
     if face_only is True:
         query_url += "&face=1"
+    print(color, baidu_color_code[color.lower()])
+    if color is not None:
+        query_url += "&ic={}".format(baidu_color_code[color.lower()])
+    print(query_url)
     return query_url
 
 
@@ -192,14 +231,20 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
         proxies = {"http": "{}://{}".format(proxy_type, proxy),
                    "https": "{}://{}".format(proxy_type, proxy)}
 
+    # headers = {
+    #     #'Accept-Encoding': 'gzip, deflate, sdch',
+    #     #'Accept-Language': 'en-US,en;q=0.8',
+    #     #'Upgrade-Insecure-Requests': '1',
+    #     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+    #     #'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,/;q=0.8',
+    #     #'Cache-Control': 'max-age=0',
+    #     #'Connection': 'keep-alive',
+    # }
     headers = {
-        #'Accept-Encoding': 'gzip, deflate, sdch',
-        #'Accept-Language': 'en-US,en;q=0.8',
-        #'Upgrade-Insecure-Requests': '1',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
-        #'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,/;q=0.8',
-        #'Cache-Control': 'max-age=0',
-        #'Connection': 'keep-alive',
+        'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
     }
 
     res = requests.get(init_url, proxies=proxies, headers=headers)
@@ -252,7 +297,7 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
 
 def crawl_image_urls(keywords, engine="Google", max_number=10000,
                      face_only=False, safe_mode=False, proxy=None, 
-                     proxy_type="http", quiet=False, browser="phantomjs"):
+                     proxy_type="http", quiet=False, browser="phantomjs", image_type=None, color=None):
     """
     Scrape image urls of keywords from Google Image Search
     :param keywords: keywords you want to search
@@ -277,11 +322,11 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     my_print("Safe Mode:  {}".format(str(safe_mode)), quiet)
 
     if engine == "Google":
-        query_url = google_gen_query_url(keywords, face_only, safe_mode)
+        query_url = google_gen_query_url(keywords, face_only, safe_mode, image_type, color)
     elif engine == "Bing":
-        query_url = bing_gen_query_url(keywords, face_only, safe_mode)
+        query_url = bing_gen_query_url(keywords, face_only, safe_mode, image_type, color)
     elif engine == "Baidu":
-        query_url = baidu_gen_query_url(keywords, face_only, safe_mode)
+        query_url = baidu_gen_query_url(keywords, face_only, safe_mode, color)
     else:
         return
 
