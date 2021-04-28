@@ -47,9 +47,6 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=
     
     filter_url = "&tbs="
 
-    if image_type.lower() == "linedrawing":
-        image_type = "lineart"
-
     if color is not None:
         if color == "bw":
             filter_url += "ic:gray%2C"
@@ -57,8 +54,10 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=
             filter_url += "ic:specific%2Cisc:{}%2C".format(color.lower())
     
     if image_type is not None:
+        if image_type.lower() == "linedrawing":
+            image_type = "lineart"
         filter_url += "itp:{}".format(image_type)
-
+        
     if face_only is True:
         filter_url += "itp:face"
 
@@ -188,7 +187,8 @@ def baidu_gen_query_url(keywords, face_only=False, safe_mode=False, color=None):
     query_url = base_url + keywords_str
     if face_only is True:
         query_url += "&face=1"
-    print(color, baidu_color_code[color.lower()])
+    if color is not None:
+        print(color, baidu_color_code[color.lower()])
     if color is not None:
         query_url += "&ic={}".format(baidu_color_code[color.lower()])
     print(query_url)
