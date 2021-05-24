@@ -102,6 +102,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             config.engine = "Bing"
         elif self.radioButton_baidu.isChecked():
             config.engine = "Baidu"
+        elif self.radioButton_other.isChecked():
+            config.engine = "other"
 
         """ Driver """
         if self.radioButton_chrome_headless.isChecked():
