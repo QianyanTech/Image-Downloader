@@ -16,9 +16,9 @@ def main(argv):
     parser.add_argument("keywords", type=str,
                         help='Keywords to search. ("in quotes")')
     parser.add_argument("--engine", "-e", type=str, default="Google",
-                        help="Image search engine.", choices=["Google", "Bing", "Baidu", "other"])
+                        help="Image search engine.", choices=["Google", "Bing", "Baidu", "Unsplash"])
     parser.add_argument("--driver", "-d", type=str, default="chrome_headless",
-                        help="Image search engine.", choices=["chrome_headless", "chrome", "phantomjs"])
+                        help="Image search engine.", choices=["chrome_headless", "chrome", "phantomjs", "firefox"])
     parser.add_argument("--max-number", "-n", type=int, default=100,
                         help="Max number of images download for the keywords.")
     parser.add_argument("--num-threads", "-j", type=int, default=50,

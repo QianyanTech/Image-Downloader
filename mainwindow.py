@@ -102,14 +102,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             config.engine = "Bing"
         elif self.radioButton_baidu.isChecked():
             config.engine = "Baidu"
-        elif self.radioButton_other.isChecked():
-            config.engine = "other"
+        elif self.radioButton_unsplash.isChecked():
+            config.engine = "Unsplash"
 
         """ Driver """
         if self.radioButton_chrome_headless.isChecked():
             config.driver = "chrome_headless"
         elif self.radioButton_chrome.isChecked():
             config.driver = "chrome"
+        elif self.radioButton_firefox.isChecked():
+            config.driver = "firefox"
         elif self.radioButton_phantomjs.isChecked():
             config.driver = "phantomjs"
 

@@ -88,10 +88,10 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
             thumb_elements_old = thumb_elements
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
-           # show_more = driver.find_elements_by_class_name("mye4qd")
-           # if len(show_more) == 1 and show_more[0].is_displayed() and show_more[0].is_enabled():
-           #     my_print("Click show_more button.", quiet)
-           #     show_more[0].click()
+        # show_more = driver.find_elements_by_class_name("mye4qd")
+        # if len(show_more) == 1 and show_more[0].is_displayed() and show_more[0].is_enabled():
+        #     my_print("Click show_more button.", quiet)
+        #     show_more[0].click()
         # time.sleep(3)
         except Exception as e:
             print("Exception ", e)
@@ -375,9 +375,9 @@ def crawl_image_urls(keywords, engine="Google", max_number=100,
         query_url = bing_gen_query_url(keywords, face_only, safe_mode, image_type, color)
     elif engine == "Baidu":
         query_url = baidu_gen_query_url(keywords, face_only, safe_mode, color)
-    elif engine == "other":
+    elif engine == "Unsplash":
         query_url = google_gen_query_url(keywords, face_only, safe_mode, image_type, color, exact_size,
-                                         specific_site="unsplash")
+                                         specific_site="Unsplash")
     else:
         return
 
@@ -385,7 +385,17 @@ def crawl_image_urls(keywords, engine="Google", max_number=100,
 
     if engine != "Baidu":
         browser = str.lower(browser)
-        if "chrome" in browser:
+        if "firefox" in browser:
+            firefox_path = shutil.which("geckodriver")
+            firefox_path = "./bin/geckodriver" if firefox_path is None else firefox_path
+            firefox_options = webdriver.FirefoxOptions()
+            if "headless" in browser:
+                firefox_options.add_argument("headless")
+            if proxy is not None and proxy_type is not None:
+                firefox_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
+            print('Firefox path: ' + firefox_path)
+            driver = webdriver.Chrome(firefox_path, chrome_options=firefox_options)
+        elif "chrome" in browser:
             chrome_path = shutil.which("chromedriver")
             chrome_path = "./bin/chromedriver" if chrome_path is None else chrome_path
             chrome_options = webdriver.ChromeOptions()
@@ -415,11 +425,11 @@ def crawl_image_urls(keywords, engine="Google", max_number=100,
             driver.set_window_size(1920, 1080)
             driver.get(query_url)
             image_urls = bing_image_url_from_webpage(driver)
-        elif engine == "other":
+        elif engine == "Unsplash":
             driver.set_window_size(1920, 1080)
             driver.get(query_url)
             image_urls = unsplash_image_url_from_webpage(driver, max_number)
-        else: # Baidu
+        else:  # Baidu
             # driver.set_window_size(10000, 7500)
             # driver.get(query_url)
             # image_urls = baidu_image_url_from_webpage(driver)
