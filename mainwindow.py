@@ -126,6 +126,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         config.max_number = self.spinBox_max_number.value()
         config.num_threads = self.spinBox_num_threads.value()
 
+        """Resolution"""
+        if self.lineEdit_resolution.text() is not None:
+            config.resolution = self.lineEdit_resolution.text()
+
         """ Proxy """
         if self.checkBox_proxy.isChecked():
             if self.radioButton_http.isChecked():

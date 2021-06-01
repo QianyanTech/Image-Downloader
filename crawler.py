@@ -46,6 +46,9 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=
         query_url = base_url + keywords_str
         filter_url = "&tbs="
 
+    if exact_size is not None:
+        query_url += " " + quote(exact_size)
+
     if specific_site is None:
         if safe_mode is True:
             query_url += "&safe=on"
@@ -66,15 +69,11 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=
     if face_only is True:
         filter_url += "itp:face"
 
-    if exact_size is not None:
-        exact_size = quote(exact_size)
-        filter_url += exact_size
-
     query_url += filter_url
     return query_url
 
 
-def google_image_url_from_webpage(driver, max_number, quiet=False):
+def google_image_url_from_webpage(driver, max_number, quiet=False, exact_size=None):
     thumb_elements_old = []
     thumb_elements = []
     while True:
@@ -88,11 +87,6 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
             thumb_elements_old = thumb_elements
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
-        # show_more = driver.find_elements_by_class_name("mye4qd")
-        # if len(show_more) == 1 and show_more[0].is_displayed() and show_more[0].is_enabled():
-        #     my_print("Click show_more button.", quiet)
-        #     show_more[0].click()
-        # time.sleep(3)
         except Exception as e:
             print("Exception ", e)
             pass
@@ -348,6 +342,8 @@ def crawl_image_urls(keywords, engine="Google", max_number=100,
                      specific_site=None):
     """
     Scrape image urls of keywords from Google Image Search
+    :param specific_site: unsplash search engine for images
+    :param exact_size: add to keyword of exact size
     :param keywords: keywords you want to search
     :param engine: search engine used to search images
     :param max_number: limit the max number of image urls the function output, equal or less than 0 for unlimited
@@ -394,7 +390,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=100,
             if proxy is not None and proxy_type is not None:
                 firefox_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
             print('Firefox path: ' + firefox_path)
-            driver = webdriver.Chrome(firefox_path, chrome_options=firefox_options)
+            driver = webdriver.Firefox(executable_path=firefox_path, firefox_options=firefox_options)
         elif "chrome" in browser:
             chrome_path = shutil.which("chromedriver")
             chrome_path = "./bin/chromedriver" if chrome_path is None else chrome_path
@@ -420,7 +416,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=100,
         if engine == "Google":
             driver.set_window_size(1920, 1080)
             driver.get(query_url)
-            image_urls = google_image_url_from_webpage(driver, max_number, quiet)
+            image_urls = google_image_url_from_webpage(driver, max_number, quiet, exact_size)
         elif engine == "Bing":
             driver.set_window_size(1920, 1080)
             driver.get(query_url)
