@@ -43,8 +43,6 @@ class AppConfig(object):
 
         str_paras += ' -j ' + str(self.num_threads)
 
-        str_paras += ' -es ' + str(self.resolution)
-
         str_paras += ' -o "' + self.output_dir + '/' + \
             gen_valid_dir_name_for_keywords(self.keywords) + '"'
 
@@ -60,6 +58,9 @@ class AppConfig(object):
             str_paras += ' -ps "' + self.proxy + '"'
 
         str_paras += ' "' + self.keywords + '"'
+
+        if self.resolution != "":
+            str_paras += ' -es ' + self.resolution
 
         return str_paras
 

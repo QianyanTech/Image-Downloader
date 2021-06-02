@@ -11,10 +11,10 @@ Using python3 and PyQt5
 
 ## 2. Key features
 
-+ Supported Search Engine: Google, Bing, Baidu
++ Supported Search Engine: Google, Bing, Baidu, Unsplash
 + Keywords input from keyboard, or input from line seperated keywords list file for batch process.
 + Download image using customizable number of threads.
-+ Fully supported conditional search (eg. filetype:, site:).
++ Fully supported conditional search (eg. filetype:, site:, exactsize:).
 + Switch for Google safe mode.
 + Proxy configuration (socks, http).
 + CMD and GUI ways of using are provided.
@@ -30,6 +30,8 @@ Using python3 and PyQt5
 + Require Google Chrome Browser or Chromium Browser installed.
 + Download the corresponding version of chromedriver from [here](https://chromedriver.chromium.org/downloads)
 + Copy `chromedriver` binary to ${project_directory}/bin/ or add it to PATH.
++ Download the corresponding version of geckodriver from [here](https://github.com/mozilla/geckodriver/releases)   
++ Copy `geckodriver` binary to ${project_directory}/bin/ or add it to PATH.
 
 ### 3.3 Download and setup phantomjs [deprecated]
 
@@ -56,13 +58,14 @@ python image_downloader_gui.py
 ### 4.2 CMD
 
 ```bash
-usage: image_downloader.py [-h] [--engine {Google,Bing,Baidu}]
+usage: image_downloader.py [-h] [--engine {Google,Bing,Baidu,Unsplash}]
                            [--driver {chrome_headless,chrome,phantomjs}]
                            [--max-number MAX_NUMBER]
                            [--num-threads NUM_THREADS] [--timeout TIMEOUT]
                            [--output OUTPUT] [--safe-mode] [--face-only]
-                           [--proxy_http PROXY_HTTP]
-                           [--proxy_socks5 PROXY_SOCKS5]
+                           [--proxy_http PROXY_HTTP] [--exact-size EXACT_SIZE]
+                           [--proxy_socks5 PROXY_SOCKS5] [--specific-site SPECIFIC_SITE]
+                           [--color COLOR]
                            keywords
 ```
 

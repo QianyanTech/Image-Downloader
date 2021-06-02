@@ -126,8 +126,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         config.max_number = self.spinBox_max_number.value()
         config.num_threads = self.spinBox_num_threads.value()
 
-        """Resolution"""
-        if self.lineEdit_resolution.text() is not None:
+        """ Resolution """
+        if self.lineEdit_resolution.text() != "":
             config.resolution = self.lineEdit_resolution.text()
 
         """ Proxy """

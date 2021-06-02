@@ -73,7 +73,7 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=
     return query_url
 
 
-def google_image_url_from_webpage(driver, max_number, quiet=False, exact_size=None):
+def google_image_url_from_webpage(driver, max_number, quiet=False):
     thumb_elements_old = []
     thumb_elements = []
     while True:
@@ -87,6 +87,11 @@ def google_image_url_from_webpage(driver, max_number, quiet=False, exact_size=No
             thumb_elements_old = thumb_elements
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
+            show_more = driver.find_elements_by_class_name("mye4qd")
+            if len(show_more) == 1 and show_more[0].is_displayed() and show_more[0].is_enabled():
+                my_print("Click show_more button.", quiet)
+                show_more[0].click()
+            time.sleep(3)
         except Exception as e:
             print("Exception ", e)
             pass
@@ -131,13 +136,16 @@ def google_image_url_from_webpage(driver, max_number, quiet=False, exact_size=No
     return image_urls
 
 
-def bing_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=None, color=None):
+def bing_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=None, color=None, exact_size=None):
     base_url = "https://www.bing.com/images/search?"
     keywords_str = "&q=" + quote(keywords)
     query_url = base_url + keywords_str
     filter_url = "&qft="
     if face_only is True:
         filter_url += "+filterui:face-face"
+
+    if exact_size is not None:
+        query_url += " " + quote(exact_size)
 
     if image_type is not None:
         filter_url += "+filterui:photo-{}".format(image_type)
@@ -185,12 +193,14 @@ baidu_color_code = {
 }
 
 
-def baidu_gen_query_url(keywords, face_only=False, safe_mode=False, color=None):
+def baidu_gen_query_url(keywords, face_only=False, safe_mode=False, color=None, exact_size=None):
     base_url = "https://image.baidu.com/search/index?tn=baiduimage"
     keywords_str = "&word=" + quote(keywords)
     query_url = base_url + keywords_str
     if face_only is True:
         query_url += "&face=1"
+    if exact_size is not None:
+        query_url += " " + quote(exact_size)
     if color is not None:
         print(color, baidu_color_code[color.lower()])
     if color is not None:
@@ -366,11 +376,11 @@ def crawl_image_urls(keywords, engine="Google", max_number=100,
     my_print("Safe Mode:  {}".format(str(safe_mode)), quiet)
 
     if engine == "Google":
-        query_url = google_gen_query_url(keywords, face_only, safe_mode, image_type, color, exact_size, specific_site)
+        query_url = google_gen_query_url(keywords, face_only, safe_mode, image_type, color, exact_size)
     elif engine == "Bing":
-        query_url = bing_gen_query_url(keywords, face_only, safe_mode, image_type, color)
+        query_url = bing_gen_query_url(keywords, face_only, safe_mode, image_type, color, exact_size)
     elif engine == "Baidu":
-        query_url = baidu_gen_query_url(keywords, face_only, safe_mode, color)
+        query_url = baidu_gen_query_url(keywords, face_only, safe_mode, color, exact_size)
     elif engine == "Unsplash":
         query_url = google_gen_query_url(keywords, face_only, safe_mode, image_type, color, exact_size,
                                          specific_site="Unsplash")
@@ -416,7 +426,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=100,
         if engine == "Google":
             driver.set_window_size(1920, 1080)
             driver.get(query_url)
-            image_urls = google_image_url_from_webpage(driver, max_number, quiet, exact_size)
+            image_urls = google_image_url_from_webpage(driver, max_number, quiet)
         elif engine == "Bing":
             driver.set_window_size(1920, 1080)
             driver.get(query_url)
