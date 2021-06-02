@@ -19,6 +19,8 @@ class AppConfig(object):
 
         self.max_number = 0
 
+        self.resolution = ""
+
         self.face_only = False
 
         self.safe_mode = False
@@ -56,6 +58,9 @@ class AppConfig(object):
             str_paras += ' -ps "' + self.proxy + '"'
 
         str_paras += ' "' + self.keywords + '"'
+
+        if self.resolution != "":
+            str_paras += ' -es ' + self.resolution
 
         return str_paras
 

@@ -16,9 +16,9 @@ def main(argv):
     parser.add_argument("keywords", type=str,
                         help='Keywords to search. ("in quotes")')
     parser.add_argument("--engine", "-e", type=str, default="Google",
-                        help="Image search engine.", choices=["Google", "Bing", "Baidu"])
+                        help="Image search engine.", choices=["Google", "Bing", "Baidu", "Unsplash"])
     parser.add_argument("--driver", "-d", type=str, default="chrome_headless",
-                        help="Image search engine.", choices=["chrome_headless", "chrome", "phantomjs"])
+                        help="Image search engine.", choices=["chrome_headless", "chrome", "phantomjs", "firefox"])
     parser.add_argument("--max-number", "-n", type=int, default=100,
                         help="Max number of images download for the keywords.")
     parser.add_argument("--num-threads", "-j", type=int, default=50,
@@ -38,6 +38,10 @@ def main(argv):
     # type is not supported for Baidu
     parser.add_argument("--type", "-ty", type=str, default=None,
                         help="What kinds of images to download.", choices=["clipart", "linedrawing", "photograph"])
+    parser.add_argument('--exact-size', '-es', help='exact image resolution "WIDTHxHEIGHT',
+                        type=str, required=False, default=None)
+    parser.add_argument('--specific-site', '-ss', help='Search for image in specific site',
+                        type=str, required=False, default=None)
     # Bing: color for colored images, bw for black&white images, other color contains Red, orange, yellow, green
     # Teal, Blue, Purple, Pink, Brown, Black, Gray, White
     # Baidu: white, bw, black, pink, blue, red, yellow, purple, green, teal, orange, brown
@@ -60,7 +64,8 @@ def main(argv):
                                             engine=args.engine, max_number=args.max_number,
                                             face_only=args.face_only, safe_mode=args.safe_mode,
                                             proxy_type=proxy_type, proxy=proxy,
-                                            browser=args.driver, image_type=args.type, color=args.color)
+                                            browser=args.driver, image_type=args.type, color=args.color,
+                                            exact_size=args.exact_size, specific_site=args.specific_site)
     downloader.download_images(image_urls=crawled_urls, dst_dir=args.output,
                                concurrency=args.num_threads, timeout=args.timeout,
                                proxy_type=proxy_type, proxy=proxy,

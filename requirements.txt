@@ -2,4 +2,4 @@ future
 PySocks
 requests
 selenium
-PyQt5
+PyQt

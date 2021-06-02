@@ -35,29 +35,37 @@ def my_print(msg, quiet=False):
         print(msg)
 
 
-def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=None, color=None):
+def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=None, color=None, exact_size=None,
+                         specific_site=None):
+    filter_url = ""
     base_url = "https://www.google.com/search?tbm=isch&hl=en"
-    keywords_str = "&q=" + quote(keywords)
-    query_url = base_url + keywords_str
-    
-    if safe_mode is True:
-        query_url += "&safe=on"
+    if specific_site is not None or specific_site == "unsplash":
+        query_url = "https://unsplash.com/s/photos/" + keywords
     else:
-        query_url += "&safe=off"
-    
-    filter_url = "&tbs="
+        keywords_str = "&q=" + quote(keywords)
+        query_url = base_url + keywords_str
+        filter_url = "&tbs="
+
+    if exact_size is not None:
+        query_url += " " + quote(exact_size)
+
+    if specific_site is None:
+        if safe_mode is True:
+            query_url += "&safe=on"
+        else:
+            query_url += "&safe=off"
 
     if color is not None:
         if color == "bw":
             filter_url += "ic:gray%2C"
         else:
             filter_url += "ic:specific%2Cisc:{}%2C".format(color.lower())
-    
+
     if image_type is not None:
         if image_type.lower() == "linedrawing":
             image_type = "lineart"
         filter_url += "itp:{}".format(image_type)
-        
+
     if face_only is True:
         filter_url += "itp:face"
 
@@ -87,7 +95,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
         except Exception as e:
             print("Exception ", e)
             pass
-    
+
     if len(thumb_elements) == 0:
         return []
 
@@ -106,7 +114,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
             print("Error while clicking in thumbnail:", e)
             retry_click.append(elem)
 
-    if len(retry_click) > 0:    
+    if len(retry_click) > 0:
         my_print("Retry some failed clicks ...", quiet)
         for elem in retry_click:
             try:
@@ -114,7 +122,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
                     elem.click()
             except Exception as e:
                 print("Error while retrying click:", e)
-    
+
     image_elements = driver.find_elements_by_class_name("islib")
     image_urls = list()
     url_pattern = r"imgurl=\S*&amp;imgrefurl"
@@ -128,17 +136,20 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
     return image_urls
 
 
-def bing_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=None, color=None):
+def bing_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=None, color=None, exact_size=None):
     base_url = "https://www.bing.com/images/search?"
     keywords_str = "&q=" + quote(keywords)
     query_url = base_url + keywords_str
     filter_url = "&qft="
     if face_only is True:
         filter_url += "+filterui:face-face"
-    
+
+    if exact_size is not None:
+        query_url += " " + quote(exact_size)
+
     if image_type is not None:
         filter_url += "+filterui:photo-{}".format(image_type)
-    
+
     if color is not None:
         if color == "bw" or color == "color":
             filter_url += "+filterui:color2-{}".format(color.lower())
@@ -181,12 +192,15 @@ baidu_color_code = {
     "yellow": 2, "purple": 32, "green": 4, "teal": 8, "orange": 256, "brown": 128
 }
 
-def baidu_gen_query_url(keywords, face_only=False, safe_mode=False, color=None):
+
+def baidu_gen_query_url(keywords, face_only=False, safe_mode=False, color=None, exact_size=None):
     base_url = "https://image.baidu.com/search/index?tn=baiduimage"
     keywords_str = "&word=" + quote(keywords)
     query_url = base_url + keywords_str
     if face_only is True:
         query_url += "&face=1"
+    if exact_size is not None:
+        query_url += " " + quote(exact_size)
     if color is not None:
         print(color, baidu_color_code[color.lower()])
     if color is not None:
@@ -217,7 +231,7 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
             url = url.replace(k, v)
         return url.translate(translate_table)
 
-    base_url = "https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&ct=201326592"\
+    base_url = "https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&ct=201326592" \
                "&lm=7&fp=result&ie=utf-8&oe=utf-8&st=-1"
     keywords_str = "&word={}&queryWord={}".format(
         quote(keywords), quote(keywords))
@@ -263,7 +277,7 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
         def process_batch(batch_no, batch_size):
             image_urls = list()
             url = query_url + \
-                "&pn={}&rn={}".format(batch_no * batch_size, batch_size)
+                  "&pn={}&rn={}".format(batch_no * batch_size, batch_size)
             try_time = 0
             while True:
                 try:
@@ -295,11 +309,51 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
     return crawled_urls[:min(len(crawled_urls), target_num)]
 
 
-def crawl_image_urls(keywords, engine="Google", max_number=10000,
-                     face_only=False, safe_mode=False, proxy=None, 
-                     proxy_type="http", quiet=False, browser="phantomjs", image_type=None, color=None):
+def unsplash_image_url_from_webpage(driver, max_number):
+    image_urls = []
+    new_element = []
+    count = 0
+    element = []
+
+    print("downloading unsplash images...: ", max_number)
+    while True:
+        try:
+            element = driver.find_elements_by_tag_name('a') and \
+                      driver.find_elements_by_xpath('//*[@title="Download photo"]')
+            count += len(element)
+            new_element.extend(element)
+            if len(new_element) >= max_number:
+                break
+            if count >= max_number:
+                break
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)
+        except Exception as e:
+            print("Error gathering image ", e)
+            pass
+
+    count = 0
+
+    for elem in new_element[:max_number]:
+        try:
+            count += 1
+            image_url = elem.get_attribute('href')
+            image_urls.append(image_url)
+        except Exception as e:
+            print("Download Error:  ", e)
+            pass
+
+    return image_urls
+
+
+def crawl_image_urls(keywords, engine="Google", max_number=100,
+                     face_only=False, safe_mode=False, proxy=None,
+                     proxy_type="http", quiet=False, browser="phantomjs", image_type=None, color=None, exact_size=None,
+                     specific_site=None):
     """
     Scrape image urls of keywords from Google Image Search
+    :param specific_site: unsplash search engine for images
+    :param exact_size: add to keyword of exact size
     :param keywords: keywords you want to search
     :param engine: search engine used to search images
     :param max_number: limit the max number of image urls the function output, equal or less than 0 for unlimited
@@ -307,7 +361,7 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     :param safe_mode: switch for safe mode of Google Search
     :param proxy: proxy address, example: socks5 127.0.0.1:1080
     :param proxy_type: socks5, http
-    :param browser: browser to use when crawl image urls from Google & Bing 
+    :param browser: browser to use when crawl image urls from Google & Bing
     :return: list of scraped image urls
     """
 
@@ -315,18 +369,21 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     my_print("Keywords:  " + keywords, quiet)
     if max_number <= 0:
         my_print("Number:  No limit", quiet)
-        max_number = 10000
+        max_number = 100
     else:
         my_print("Number:  {}".format(max_number), quiet)
     my_print("Face Only:  {}".format(str(face_only)), quiet)
     my_print("Safe Mode:  {}".format(str(safe_mode)), quiet)
 
     if engine == "Google":
-        query_url = google_gen_query_url(keywords, face_only, safe_mode, image_type, color)
+        query_url = google_gen_query_url(keywords, face_only, safe_mode, image_type, color, exact_size)
     elif engine == "Bing":
-        query_url = bing_gen_query_url(keywords, face_only, safe_mode, image_type, color)
+        query_url = bing_gen_query_url(keywords, face_only, safe_mode, image_type, color, exact_size)
     elif engine == "Baidu":
-        query_url = baidu_gen_query_url(keywords, face_only, safe_mode, color)
+        query_url = baidu_gen_query_url(keywords, face_only, safe_mode, color, exact_size)
+    elif engine == "Unsplash":
+        query_url = google_gen_query_url(keywords, face_only, safe_mode, image_type, color, exact_size,
+                                         specific_site="Unsplash")
     else:
         return
 
@@ -334,7 +391,17 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
 
     if engine != "Baidu":
         browser = str.lower(browser)
-        if "chrome" in browser:
+        if "firefox" in browser:
+            firefox_path = shutil.which("geckodriver")
+            firefox_path = "./bin/geckodriver" if firefox_path is None else firefox_path
+            firefox_options = webdriver.FirefoxOptions()
+            if "headless" in browser:
+                firefox_options.add_argument("headless")
+            if proxy is not None and proxy_type is not None:
+                firefox_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
+            print('Firefox path: ' + firefox_path)
+            driver = webdriver.Firefox(executable_path=firefox_path, firefox_options=firefox_options)
+        elif "chrome" in browser:
             chrome_path = shutil.which("chromedriver")
             chrome_path = "./bin/chromedriver" if chrome_path is None else chrome_path
             chrome_options = webdriver.ChromeOptions()
@@ -353,22 +420,32 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
                     "--proxy-type=" + proxy_type,
                 ]
             driver = webdriver.PhantomJS(executable_path=phantomjs_path,
-                                        service_args=phantomjs_args, desired_capabilities=dcap)
+                                         service_args=phantomjs_args, desired_capabilities=dcap)
 
-    if engine == "Google":
+    if specific_site is None:
+        if engine == "Google":
+            driver.set_window_size(1920, 1080)
+            driver.get(query_url)
+            image_urls = google_image_url_from_webpage(driver, max_number, quiet)
+        elif engine == "Bing":
+            driver.set_window_size(1920, 1080)
+            driver.get(query_url)
+            image_urls = bing_image_url_from_webpage(driver)
+        elif engine == "Unsplash":
+            driver.set_window_size(1920, 1080)
+            driver.get(query_url)
+            image_urls = unsplash_image_url_from_webpage(driver, max_number)
+        else:  # Baidu
+            # driver.set_window_size(10000, 7500)
+            # driver.get(query_url)
+            # image_urls = baidu_image_url_from_webpage(driver)
+            image_urls = baidu_get_image_url_using_api(keywords, max_number=max_number, face_only=face_only,
+                                                       proxy=proxy, proxy_type=proxy_type)
+    else:
         driver.set_window_size(1920, 1080)
         driver.get(query_url)
-        image_urls = google_image_url_from_webpage(driver, max_number, quiet)
-    elif engine == "Bing":
-        driver.set_window_size(1920, 1080)
-        driver.get(query_url)
-        image_urls = bing_image_url_from_webpage(driver)
-    else:   # Baidu
-        # driver.set_window_size(10000, 7500)
-        # driver.get(query_url)
-        # image_urls = baidu_image_url_from_webpage(driver)
-        image_urls = baidu_get_image_url_using_api(keywords, max_number=max_number, face_only=face_only,
-                                                   proxy=proxy, proxy_type=proxy_type)
+        image_urls = unsplash_image_url_from_webpage(driver, max_number)
+
     if engine != "Baidu":
         driver.close()
 

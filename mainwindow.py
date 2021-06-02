@@ -102,12 +102,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             config.engine = "Bing"
         elif self.radioButton_baidu.isChecked():
             config.engine = "Baidu"
+        elif self.radioButton_unsplash.isChecked():
+            config.engine = "Unsplash"
 
         """ Driver """
         if self.radioButton_chrome_headless.isChecked():
             config.driver = "chrome_headless"
         elif self.radioButton_chrome.isChecked():
             config.driver = "chrome"
+        elif self.radioButton_firefox.isChecked():
+            config.driver = "firefox"
         elif self.radioButton_phantomjs.isChecked():
             config.driver = "phantomjs"
 
@@ -121,6 +125,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """ Numbers """
         config.max_number = self.spinBox_max_number.value()
         config.num_threads = self.spinBox_num_threads.value()
+
+        """ Resolution """
+        if self.lineEdit_resolution.text() != "":
+            config.resolution = self.lineEdit_resolution.text()
 
         """ Proxy """
         if self.checkBox_proxy.isChecked():
