@@ -10,7 +10,6 @@ import time
 import sys
 import os
 import json
-import codecs
 import shutil
 
 from urllib.parse import unquote, quote
@@ -18,6 +17,15 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import requests
 from concurrent import futures
+
+g_headers = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Proxy-Connection": "keep-alive",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
+    "Accept-Encoding": "gzip, deflate, sdch",
+    # 'Connection': 'close',
+}
 
 if getattr(sys, 'frozen', False):
     bundle_dir = sys._MEIPASS
@@ -170,6 +178,24 @@ def bing_image_url_from_webpage(driver):
         image_urls.append(m_json["murl"])
     return image_urls
 
+def bing_get_image_url_using_api(keywords, max_number=10000, face_only=False,
+                                 proxy=None, proxy_type=None):
+    proxies = None
+    if proxy and proxy_type:
+        proxies = {"http": "{}://{}".format(proxy_type, proxy),
+                   "https": "{}://{}".format(proxy_type, proxy)}                             
+    start = 1
+    image_urls = []
+    while start <= max_number:
+        url = 'https://www.bing.com/images/async?q={}&first={}&count=35'.format(keywords, start)
+        res = requests.get(url, proxies=proxies, headers=g_headers)
+        res.encoding = "utf-8"
+        image_urls_batch = re.findall('murl&quot;:&quot;(.*?)&quot;', res.text)
+        if len(image_urls) > 0 and image_urls_batch[-1] == image_urls[-1]:
+            break
+        image_urls += image_urls_batch
+        start += len(image_urls_batch)
+    return image_urls
 
 baidu_color_code = {
     "white": 1024, "bw": 2048, "black": 512, "pink": 64, "blue": 16, "red": 1,
@@ -226,23 +252,7 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
         proxies = {"http": "{}://{}".format(proxy_type, proxy),
                    "https": "{}://{}".format(proxy_type, proxy)}
 
-    # headers = {
-    #     #'Accept-Encoding': 'gzip, deflate, sdch',
-    #     #'Accept-Language': 'en-US,en;q=0.8',
-    #     #'Upgrade-Insecure-Requests': '1',
-    #     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
-    #     #'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,/;q=0.8',
-    #     #'Cache-Control': 'max-age=0',
-    #     #'Connection': 'keep-alive',
-    # }
-    headers = {
-        'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1'
-    }
-
-    res = requests.get(init_url, proxies=proxies, headers=headers)
+    res = requests.get(init_url, proxies=proxies, headers=g_headers)
     init_json = json.loads(res.text.replace(r"\'", ""), encoding='utf-8', strict=False)
     total_num = init_json['listNum']
 
@@ -262,7 +272,7 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
             try_time = 0
             while True:
                 try:
-                    response = requests.get(url, proxies=proxies, headers=headers)
+                    response = requests.get(url, proxies=proxies, headers=g_headers)
                     break
                 except Exception as e:
                     try_time += 1
@@ -335,6 +345,8 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
 
     my_print("Query URL:  " + query_url, quiet)
 
+    image_urls = []
+
     if browser != "api":
         browser = str.lower(browser)
         chrome_path = shutil.which("chromedriver")
@@ -362,6 +374,9 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
         if engine == "Baidu":
             image_urls = baidu_get_image_url_using_api(keywords, max_number=max_number, face_only=face_only,
                                                        proxy=proxy, proxy_type=proxy_type)
+        elif engine == "Bing":
+            image_urls = bing_get_image_url_using_api(keywords, max_number=max_number, face_only=face_only,
+                                                      proxy=proxy, proxy_type=proxy_type)
         else:
             my_print("Engine {} is not supported on API mode.".format(engine))
 
