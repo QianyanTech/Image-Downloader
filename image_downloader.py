@@ -5,11 +5,11 @@
 from __future__ import print_function
 
 import argparse
+import sys
 
 import crawler
 import downloader
-import sys
-
+import utils
 
 def main(argv):
     parser = argparse.ArgumentParser(description="Image Downloader")
@@ -18,12 +18,12 @@ def main(argv):
     parser.add_argument("--engine", "-e", type=str, default="Google",
                         help="Image search engine.", choices=["Google", "Bing", "Baidu"])
     parser.add_argument("--driver", "-d", type=str, default="chrome_headless",
-                        help="Image search engine.", choices=["chrome_headless", "chrome", "phantomjs"])
+                        help="Image search engine.", choices=["chrome_headless", "chrome", "api"])
     parser.add_argument("--max-number", "-n", type=int, default=100,
                         help="Max number of images download for the keywords.")
     parser.add_argument("--num-threads", "-j", type=int, default=50,
                         help="Number of threads to concurrently download images.")
-    parser.add_argument("--timeout", "-t", type=int, default=20,
+    parser.add_argument("--timeout", "-t", type=int, default=10,
                         help="Seconds to timeout when download an image.")
     parser.add_argument("--output", "-o", type=str, default="./download_images",
                         help="Output directory to save downloaded images.")
@@ -55,6 +55,10 @@ def main(argv):
     elif args.proxy_socks5 is not None:
         proxy_type = "socks5"
         proxy = args.proxy_socks5
+
+    if not utils.resolve_dependencies(args.driver):
+        print("Dependencies not resolved, exit.")
+        return
 
     crawled_urls = crawler.crawl_image_urls(args.keywords,
                                             engine=args.engine, max_number=args.max_number,

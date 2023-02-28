@@ -15,7 +15,7 @@ import shutil
 
 from urllib.parse import unquote, quote
 from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
+from selenium.webdriver.common.by import By
 import requests
 from concurrent import futures
 
@@ -23,11 +23,6 @@ if getattr(sys, 'frozen', False):
     bundle_dir = sys._MEIPASS
 else:
     bundle_dir = os.path.dirname(os.path.abspath(__file__))
-
-dcap = dict(DesiredCapabilities.PHANTOMJS)
-dcap["phantomjs.page.settings.userAgent"] = (
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.100"
-)
 
 
 def my_print(msg, quiet=False):
@@ -70,7 +65,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
     thumb_elements = []
     while True:
         try:
-            thumb_elements = driver.find_elements_by_class_name("rg_i")
+            thumb_elements = driver.find_elements(By.CLASS_NAME, "rg_i")
             my_print("Find {} images.".format(len(thumb_elements)), quiet)
             if len(thumb_elements) >= max_number:
                 break
@@ -79,7 +74,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
             thumb_elements_old = thumb_elements
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
-            show_more = driver.find_elements_by_class_name("mye4qd")
+            show_more = driver.find_elements(By.CLASS_NAME, "mye4qd")
             if len(show_more) == 1 and show_more[0].is_displayed() and show_more[0].is_enabled():
                 my_print("Click show_more button.", quiet)
                 show_more[0].click()
@@ -115,7 +110,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
             except Exception as e:
                 print("Error while retrying click:", e)
     
-    image_elements = driver.find_elements_by_class_name("islib")
+    image_elements = driver.find_elements(By.CLASS_NAME, "islib")
     image_urls = list()
     url_pattern = r"imgurl=\S*&amp;imgrefurl"
 
@@ -157,13 +152,13 @@ def bing_image_url_from_webpage(driver):
     img_count = 0
 
     while True:
-        image_elements = driver.find_elements_by_class_name("iusc")
+        image_elements = driver.find_elements(By.CLASS_NAME, "iusc")
         if len(image_elements) > img_count:
             img_count = len(image_elements)
             driver.execute_script(
                 "window.scrollTo(0, document.body.scrollHeight);")
         else:
-            smb = driver.find_elements_by_class_name("btn_seemore")
+            smb = driver.find_elements(By.CLASS_NAME, "btn_seemore")
             if len(smb) > 0 and smb[0].is_displayed():
                 smb[0].click()
             else:
@@ -197,7 +192,7 @@ def baidu_gen_query_url(keywords, face_only=False, safe_mode=False, color=None):
 
 def baidu_image_url_from_webpage(driver):
     time.sleep(10)
-    image_elements = driver.find_elements_by_class_name("imgitem")
+    image_elements = driver.find_elements(By.CLASS_NAME, "imgitem")
     image_urls = list()
 
     for image_element in image_elements:
@@ -277,8 +272,16 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
             response.encoding = 'utf-8'
             res_json = json.loads(response.text.replace(r"\'", ""), encoding='utf-8', strict=False)
             for data in res_json['data']:
+                # if 'middleURL' in data.keys():
+                #     url = data['middleURL']
+                #     image_urls.append(url)
                 if 'objURL' in data.keys():
-                    image_urls.append(decode_url(data['objURL']))
+                    url = unquote(decode_url(data['objURL']))
+                    if 'src=' in url:
+                        url_p1 = url.split('src=')[1]
+                        url = url_p1.split('&refer=')[0]
+                    image_urls.append(url)
+                    # print(url)
                 elif 'replaceUrl' in data.keys() and len(data['replaceUrl']) == 2:
                     image_urls.append(data['replaceUrl'][1]['ObjURL'])
 
@@ -297,7 +300,7 @@ def baidu_get_image_url_using_api(keywords, max_number=10000, face_only=False,
 
 def crawl_image_urls(keywords, engine="Google", max_number=10000,
                      face_only=False, safe_mode=False, proxy=None, 
-                     proxy_type="http", quiet=False, browser="phantomjs", image_type=None, color=None):
+                     proxy_type="http", quiet=False, browser="chrome_headless", image_type=None, color=None):
     """
     Scrape image urls of keywords from Google Image Search
     :param keywords: keywords you want to search
@@ -307,11 +310,11 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     :param safe_mode: switch for safe mode of Google Search
     :param proxy: proxy address, example: socks5 127.0.0.1:1080
     :param proxy_type: socks5, http
-    :param browser: browser to use when crawl image urls from Google & Bing 
+    :param browser: browser to use when crawl image urls
     :return: list of scraped image urls
     """
 
-    my_print("\nScraping From {0} Image Search ...\n".format(engine), quiet)
+    my_print("\nScraping From {} Image Search ...\n".format(engine), quiet)
     my_print("Keywords:  " + keywords, quiet)
     if max_number <= 0:
         my_print("Number:  No limit", quiet)
@@ -332,45 +335,35 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
 
     my_print("Query URL:  " + query_url, quiet)
 
-    if engine != "Baidu":
+    if browser != "api":
         browser = str.lower(browser)
-        if "chrome" in browser:
-            chrome_path = shutil.which("chromedriver")
-            chrome_path = "./bin/chromedriver" if chrome_path is None else chrome_path
-            chrome_options = webdriver.ChromeOptions()
-            if "headless" in browser:
-                chrome_options.add_argument("headless")
-            if proxy is not None and proxy_type is not None:
-                chrome_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
-            driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
-        else:
-            phantomjs_path = shutil.which("phantomjs")
-            phantomjs_path = "./bin/phantomjs" if phantomjs_path is None else phantomjs_path
-            phantomjs_args = []
-            if proxy is not None and proxy_type is not None:
-                phantomjs_args += [
-                    "--proxy=" + proxy,
-                    "--proxy-type=" + proxy_type,
-                ]
-            driver = webdriver.PhantomJS(executable_path=phantomjs_path,
-                                        service_args=phantomjs_args, desired_capabilities=dcap)
+        chrome_path = shutil.which("chromedriver")
+        chrome_options = webdriver.ChromeOptions()
+        if "headless" in browser:
+            chrome_options.add_argument("headless")
+        if proxy is not None and proxy_type is not None:
+            chrome_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
+        driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
 
-    if engine == "Google":
-        driver.set_window_size(1920, 1080)
-        driver.get(query_url)
-        image_urls = google_image_url_from_webpage(driver, max_number, quiet)
-    elif engine == "Bing":
-        driver.set_window_size(1920, 1080)
-        driver.get(query_url)
-        image_urls = bing_image_url_from_webpage(driver)
-    else:   # Baidu
-        # driver.set_window_size(10000, 7500)
-        # driver.get(query_url)
-        # image_urls = baidu_image_url_from_webpage(driver)
-        image_urls = baidu_get_image_url_using_api(keywords, max_number=max_number, face_only=face_only,
-                                                   proxy=proxy, proxy_type=proxy_type)
-    if engine != "Baidu":
+        if engine == "Google":
+            driver.set_window_size(1920, 1080)
+            driver.get(query_url)
+            image_urls = google_image_url_from_webpage(driver, max_number, quiet)
+        elif engine == "Bing":
+            driver.set_window_size(1920, 1080)
+            driver.get(query_url)
+            image_urls = bing_image_url_from_webpage(driver)
+        else:   # Baidu
+            driver.set_window_size(10000, 7500)
+            driver.get(query_url)
+            image_urls = baidu_image_url_from_webpage(driver)
         driver.close()
+    else: # api
+        if engine == "Baidu":
+            image_urls = baidu_get_image_url_using_api(keywords, max_number=max_number, face_only=face_only,
+                                                       proxy=proxy, proxy_type=proxy_type)
+        else:
+            my_print("Engine {} is not supported on API mode.".format(engine))
 
     if max_number > len(image_urls):
         output_num = len(image_urls)
