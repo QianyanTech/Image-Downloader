@@ -392,14 +392,17 @@ QProgressBar::chunk {
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_phantomjs">
+           <widget class="QRadioButton" name="radioButton_api">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="font">
              <font>
               <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
-             <string>PhantomJs</string>
+             <string>API</string>
             </property>
            </widget>
           </item>
@@ -1094,24 +1097,104 @@ per keywords</string>
    </hints>
   </connection>
   <connection>
-   <sender>radioButton_baidu</sender>
+   <sender>radioButton_google</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widget_driver</receiver>
+   <receiver>radioButton_api</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>484</x>
+     <x>92</x>
      <y>60</y>
     </hint>
     <hint type="destinationlabel">
-     <x>382</x>
-     <y>94</y>
+     <x>435</x>
+     <y>107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_baidu</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radioButton_api</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>437</x>
+     <y>58</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>568</x>
+     <y>113</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_baidu</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radioButton_api</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>505</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>546</x>
+     <y>111</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_google</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radioButton_chrome_headless</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>67</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>63</x>
+     <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_bing</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radioButton_api</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>464</x>
+     <y>111</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_bing</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radioButton_api</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>322</x>
+     <y>68</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>460</x>
+     <y>114</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

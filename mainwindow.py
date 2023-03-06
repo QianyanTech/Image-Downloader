@@ -108,8 +108,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             config.driver = "chrome_headless"
         elif self.radioButton_chrome.isChecked():
             config.driver = "chrome"
-        elif self.radioButton_phantomjs.isChecked():
-            config.driver = "phantomjs"
+        elif self.radioButton_api.isChecked():
+            config.driver = "api"
 
         """ Output directory """
         config.output_dir = self.lineEdit_output.text()
