@@ -6,7 +6,7 @@ block_cipher = None
 a = Analysis(['image_downloader_gui.py'],
              pathex=['./'],
              binaries=None,
-             datas=[("bin/phantomjs.exe", "bin/")],
+             datas=[],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -23,6 +23,6 @@ exe = EXE(pyz,
           a.datas,
           name='image_downloader_gui',
           debug=False,
-          strip=False,
+          strip=True,
           upx=True,
-          console=True )
+          console=False )
