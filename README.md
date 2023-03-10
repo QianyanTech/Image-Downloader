@@ -43,6 +43,10 @@ usage: image_downloader.py [-h] [--engine {Google,Bing,Baidu}]
                            keywords
 ```
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=QianyanTech/Image-Downloader&type=Date)](https://star-history.com/#QianyanTech/Image-Downloader&Date)
+
 ## License
 
 + MIT License
