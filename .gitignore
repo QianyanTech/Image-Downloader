@@ -4,3 +4,5 @@ images
 *ghostdriver.log
 .vscode
 download_images
+build
+dist
