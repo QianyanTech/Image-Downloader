@@ -23,6 +23,6 @@ exe = EXE(pyz,
           a.datas,
           name='image_downloader_gui',
           debug=False,
-          strip=True,
+          strip=False,
           upx=True,
           console=False )
