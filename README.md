@@ -8,7 +8,7 @@
 
 Crawl and download images using Selenium
 Using python3 and PyQt5
-
+Using python 3.6
 ## 2. Key features
 
 + Supported Search Engine: Google, Bing, Baidu

@@ -35,6 +35,7 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
     while True:
         try:
             try_times += 1
+            image_url = image_url.split('&amp;')[0]
             response = requests.get(
                 image_url, headers=headers, timeout=timeout, proxies=proxies)
             with open(file_path, 'wb') as f:
