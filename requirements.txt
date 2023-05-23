@@ -1,5 +1,5 @@
 chromedriver-autoinstaller==0.4.0
 pyinstaller==5.9.0
 PyQt5==5.15.9
-requests==2.28.2
+requests==2.31.0
 selenium==4.8.3
