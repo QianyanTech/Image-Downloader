@@ -14,6 +14,7 @@ import shutil
 
 from urllib.parse import unquote, quote
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import requests
 from concurrent import futures
@@ -355,7 +356,11 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
             chrome_options.add_argument("headless")
         if proxy is not None and proxy_type is not None:
             chrome_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
-        driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
+            
+        # driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
+        service = Service(executable_path=chrome_path)
+        options = webdriver.ChromeOptions()
+        driver = webdriver.Chrome(service=service, options=options)
 
         if engine == "Google":
             driver.set_window_size(1920, 1080)
