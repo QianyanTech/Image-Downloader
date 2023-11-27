@@ -21,6 +21,14 @@ headers = {
     # 'Connection': 'close',
 }
 
+# additional check for imghdr.what()
+def test_html(h, f):
+    if b'<html' in h:
+        return 'html'
+
+imghdr.tests.append(test_html)
+
+
 def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, proxy=None):
     proxies = None
     if proxy_type is not None:
@@ -41,23 +49,34 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
             with open(file_path, 'wb') as f:
                 f.write(response.content)
             response.close()
+
             file_type = imghdr.what(file_path)
+
+            if file_name.endswith('.jpeg'):
+                file_name = file_name.replace('.jpeg', '.jpg')
+
             if file_type == 'jpeg':
                 file_type = 'jpg'
 
-            # if file_type is not None:
-            if file_type in ["jpg", "jpeg", "png", "bmp", "webp"]:
-                new_file_name = "{}.{}".format(file_name, file_type)
+            # if file_type in ["jpg", "jpeg", "png", "bmp", "webp"]:
+            if file_type is not None:
+                if file_name.endswith("." + file_type):
+                    new_file_name = file_name
+                else: 
+                    new_file_name = "{}.{}".format(file_name, file_type)
+                    
                 new_file_path = os.path.join(dst_dir, new_file_name)
                 shutil.move(file_path, new_file_path)
                 print("## OK:  {}  {}".format(new_file_name, image_url))
-            else:
+                return True
+            elif file_type == 'html':
                 os.remove(file_path)
                 print("## Err: TYPE({})  {}".format(file_type, image_url))
                 return False
             break
         except Exception as e:
             if try_times < 3:
+                file_name = file_name + "a"
                 continue
             if response:
                 response.close()
@@ -82,13 +101,20 @@ def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, time
     socket.setdefaulttimeout(timeout)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
-        count = 1
         future_list = list()
         count = 0
+        success_downloads = 0
+        
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
         for image_url in image_urls:
-            file_name = file_prefix + "_" + "%04d" % count
+            # file_name = file_prefix + "_" + "%04d" % count
+            print("## URL :  {}".format(image_url))
+            file_name = image_url
+            file_name = split_string(file_name, '?', 0)
+            file_name = split_string(file_name, '&amp;', 0)
+            file_name = split_string(file_name, '/', -1)
+            print("## FILE:  {}".format(file_name))
             future_list.append(executor.submit(
                 download_image, image_url, dst_dir, file_name, timeout, proxy_type, proxy))
             count += 1
@@ -100,3 +126,20 @@ def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, time
                 success_downloads += 1
 
     return success_downloads
+
+
+def split_string(str, delimiter, index):
+    s = str
+    while delimiter in s:
+        s, _, t = s.partition(delimiter)
+        if index == 0:
+            break
+        if t == '':
+            break
+        index = index - 1
+        s = t
+
+    if s == '':
+        s = str
+
+    return s
