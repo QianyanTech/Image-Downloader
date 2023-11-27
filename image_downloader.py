@@ -30,7 +30,7 @@ def main(argv):
     parser.add_argument("--safe-mode", "-S", action="store_true", default=False,
                         help="Turn on safe search mode. (Only effective in Google)")
     parser.add_argument("--face-only", "-F", action="store_true", default=False,
-                        help="Only search for ")
+                        help="Only search for faces (only available in Google)")")
     parser.add_argument("--proxy_http", "-ph", type=str, default=None,
                         help="Set http proxy (e.g. 192.168.0.2:8080)")
     parser.add_argument("--proxy_socks5", "-ps", type=str, default=None,

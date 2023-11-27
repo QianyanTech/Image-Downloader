@@ -35,12 +35,16 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
     while True:
         try:
             try_times += 1
+            #= image_url = image_url.split('&amp;')[0] # https://github.com/pablobots/Image-Downloader/commit/5bdbe076589459b9d0c41a563b92993cac1a892e
             response = requests.get(
                 image_url, headers=headers, timeout=timeout, proxies=proxies)
             with open(file_path, 'wb') as f:
                 f.write(response.content)
             response.close()
             file_type = imghdr.what(file_path)
+            if file_type == 'jpeg':
+                file_type = 'jpg'
+
             # if file_type is not None:
             if file_type in ["jpg", "jpeg", "png", "bmp", "webp"]:
                 new_file_name = "{}.{}".format(file_name, file_type)
@@ -50,6 +54,7 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
             else:
                 os.remove(file_path)
                 print("## Err: TYPE({})  {}".format(file_type, image_url))
+                return False
             break
         except Exception as e:
             if try_times < 3:
@@ -57,6 +62,7 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
             if response:
                 response.close()
             print("## Fail:  {}  {}".format(image_url, e.args))
+            return False
             break
 
 
@@ -70,12 +76,13 @@ def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, time
     :param dst_dir: output the downloaded images to dst_dir
     :param file_prefix: if set to "img", files will be in format "img_xxx.jpg"
     :param concurrency: number of requests process simultaneously
-    :return: none
+    :return: the number of successful downloads
     """
 
     socket.setdefaulttimeout(timeout)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
+        count = 1
         future_list = list()
         count = 0
         if not os.path.exists(dst_dir):
@@ -86,3 +93,10 @@ def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, time
                 download_image, image_url, dst_dir, file_name, timeout, proxy_type, proxy))
             count += 1
         concurrent.futures.wait(future_list, timeout=180)
+
+        # Count the number of successful downloads
+        for future in future_list:
+            if future.result():
+                success_downloads += 1
+
+    return success_downloads

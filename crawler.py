@@ -325,6 +325,10 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     :return: list of scraped image urls
     """
 
+# Validate engine name
+    if engine not in ['Google', 'Baidu', 'Bing']:
+        raise Exception(f'Unknown engine name: {engine}')
+
     my_print("\nScraping From {} Image Search ...\n".format(engine), quiet)
     my_print("Keywords:  " + keywords, quiet)
     if max_number <= 0:
@@ -357,10 +361,11 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
         if proxy is not None and proxy_type is not None:
             chrome_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
             
+        chrome_options.add_argument('--ignore-certificate-errors')
+
         # driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
         service = Service(executable_path=chrome_path)
-        options = webdriver.ChromeOptions()
-        driver = webdriver.Chrome(service=service, options=options)
+        driver = webdriver.Chrome(service=service, options=chrome_options)
 
         if engine == "Google":
             driver.set_window_size(1920, 1080)
@@ -370,10 +375,11 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
             driver.set_window_size(1920, 1080)
             driver.get(query_url)
             image_urls = bing_image_url_from_webpage(driver)
-        else:   # Baidu
+        elif engine == "Baidu":
             driver.set_window_size(10000, 7500)
             driver.get(query_url)
             image_urls = baidu_image_url_from_webpage(driver)
+
         driver.close()
     else: # api
         if engine == "Baidu":
