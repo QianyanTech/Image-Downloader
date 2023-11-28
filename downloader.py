@@ -23,25 +23,29 @@ headers = {
 
 # additional checks for imghdr.what()
 def test_html(h, f):
-    if b'<html' in h:
-        return 'html'
+    if b"<html" in h:
+        return "html"
+
 
 imghdr.tests.append(test_html)
 
 
 def test_xml(h, f):
-    if b'<xml' in h:
-        return 'xml'
+    if b"<xml" in h:
+        return "xml"
+
 
 imghdr.tests.append(test_xml)
 
 
-def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, proxy=None):
+def download_image(
+    image_url, dst_dir, file_name, timeout=20, proxy_type=None, proxy=None
+):
     proxies = None
     if proxy_type is not None:
         proxies = {
             "http": proxy_type + "://" + proxy,
-            "https": proxy_type + "://" + proxy
+            "https": proxy_type + "://" + proxy,
         }
 
     response = None
@@ -50,26 +54,27 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
     while True:
         try:
             try_times += 1
-            #= image_url = image_url.split('&amp;')[0] # https://github.com/pablobots/Image-Downloader/commit/5bdbe076589459b9d0c41a563b92993cac1a892e
+            # = image_url = image_url.split('&amp;')[0] # https://github.com/pablobots/Image-Downloader/commit/5bdbe076589459b9d0c41a563b92993cac1a892e
             response = requests.get(
-                image_url, headers=headers, timeout=timeout, proxies=proxies)
-            with open(file_path, 'wb') as f:
+                image_url, headers=headers, timeout=timeout, proxies=proxies
+            )
+            with open(file_path, "wb") as f:
                 f.write(response.content)
             response.close()
 
             file_type = imghdr.what(file_path)
 
-            if file_name.endswith('.jpeg'):
-                file_name = file_name.replace('.jpeg', '.jpg')
+            if file_name.endswith(".jpeg"):
+                file_name = file_name.replace(".jpeg", ".jpg")
 
-            if file_type == 'jpeg':
-                file_type = 'jpg'
+            if file_type == "jpeg":
+                file_type = "jpg"
 
             if file_type is None:
                 # os.remove(file_path)
                 print("## Err: TYPE({})  {}".format(file_type, file_name))
                 return False
-            elif file_type == 'html' or file_type == 'xml':
+            elif file_type == "html" or file_type == "xml":
                 os.remove(file_path)
                 print("## Err: TYPE({})  {}".format(file_type, image_url))
                 return False
@@ -77,12 +82,12 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
                 if len(file_name) >= 200:
                     print("Truncating:  {}".format(file_name))
                     file_name = file_name[:200]
-                    
+
                 if file_name.endswith("." + file_type):
                     new_file_name = file_name
-                else: 
+                else:
                     new_file_name = "{}.{}".format(file_name, file_type)
-                    
+
                 new_file_path = os.path.join(dst_dir, new_file_name)
                 shutil.move(file_path, new_file_path)
                 print("## OK:  {}  {}".format(new_file_name, image_url))
@@ -92,7 +97,7 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
                 print("## Err: TYPE({})  {}".format(file_type, image_url))
                 return False
             break
-            
+
         except Exception as e:
             if try_times < 3:
                 file_name = file_name + "a"
@@ -104,7 +109,15 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
             break
 
 
-def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, timeout=20, proxy_type=None, proxy=None):
+def download_images(
+    image_urls,
+    dst_dir,
+    file_prefix="img",
+    concurrency=50,
+    timeout=20,
+    proxy_type=None,
+    proxy=None,
+):
     """
     Download image according to given urls and automatically rename them in order.
     :param timeout:
@@ -123,19 +136,28 @@ def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, time
         future_list = list()
         count = 0
         success_downloads = 0
-        
+
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
         for image_url in image_urls:
             # file_name = file_prefix + "_" + "%04d" % count
             print("## URL :  {}".format(image_url))
             file_name = image_url
-            file_name = split_string(file_name, '?', 0)
-            file_name = split_string(file_name, '&amp;', 0)
-            file_name = split_string(file_name, '/', -1)
+            file_name = split_string(file_name, "?", 0)
+            file_name = split_string(file_name, "&amp;", 0)
+            file_name = split_string(file_name, "/", -1)
             print("## FILE:  {}".format(file_name))
-            future_list.append(executor.submit(
-                download_image, image_url, dst_dir, file_name, timeout, proxy_type, proxy))
+            future_list.append(
+                executor.submit(
+                    download_image,
+                    image_url,
+                    dst_dir,
+                    file_name,
+                    timeout,
+                    proxy_type,
+                    proxy,
+                )
+            )
             count += 1
         concurrent.futures.wait(future_list, timeout=180)
 
@@ -153,12 +175,12 @@ def split_string(str, delimiter, index):
         s, _, t = s.partition(delimiter)
         if index == 0:
             break
-        if t == '':
+        if t == "":
             break
         index = index - 1
         s = t
 
-    if s == '':
+    if s == "":
         s = str
 
     return s
