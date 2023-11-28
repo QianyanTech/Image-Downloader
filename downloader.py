@@ -21,12 +21,19 @@ headers = {
     # 'Connection': 'close',
 }
 
-# additional check for imghdr.what()
+# additional checks for imghdr.what()
 def test_html(h, f):
     if b'<html' in h:
         return 'html'
 
 imghdr.tests.append(test_html)
+
+
+def test_xml(h, f):
+    if b'<xml' in h:
+        return 'xml'
+
+imghdr.tests.append(test_xml)
 
 
 def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, proxy=None):
@@ -58,11 +65,19 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
             if file_type == 'jpeg':
                 file_type = 'jpg'
 
-            if file_type is None or file_type == 'html':
+            if file_type is None:
+                # os.remove(file_path)
+                print("## Err: TYPE({})  {}".format(file_type, file_name))
+                return False
+            elif file_type == 'html' or file_type == 'xml':
                 os.remove(file_path)
                 print("## Err: TYPE({})  {}".format(file_type, image_url))
                 return False
             elif file_type in ["jpg", "jpeg", "png", "bmp", "webp"]:
+                if len(file_name) >= 200:
+                    print("Truncating:  {}".format(file_name))
+                    file_name = file_name[:200]
+                    
                 if file_name.endswith("." + file_type):
                     new_file_name = file_name
                 else: 
@@ -73,7 +88,7 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
                 print("## OK:  {}  {}".format(new_file_name, image_url))
                 return True
             else:
-                os.remove(file_path)
+                # os.remove(file_path)
                 print("## Err: TYPE({})  {}".format(file_type, image_url))
                 return False
             break
