@@ -25,6 +25,12 @@ headers = {
 def test_html(h, f):
     if b"<html" in h:
         return "html"
+    if b"<HTML" in h:
+        return "html"
+    if b"<!DOCTYPE " in h: # "<!DOCTYPE HTML" or "<!DOCTYPE html"
+        return "html"
+    if b"<!doctype html" in h:
+        return "html"
 
 
 imghdr.tests.append(test_html)
@@ -32,6 +38,8 @@ imghdr.tests.append(test_html)
 
 def test_xml(h, f):
     if b"<xml" in h:
+        return "xml"
+    if b"<?xml " in h:
         return "xml"
 
 
@@ -58,6 +66,10 @@ def download_image(
             response = requests.get(
                 image_url, headers=headers, timeout=timeout, proxies=proxies
             )
+            
+            # TODO: handle 429 Too Many Requests
+            # TODO: handle 404 not found (don't even save the content)
+            # TODO: handle 403 Forbidden (don't even save the content)
             with open(file_path, "wb") as f:
                 f.write(response.content)
             response.close()
@@ -78,7 +90,7 @@ def download_image(
                 os.remove(file_path)
                 print("## Err: TYPE({})  {}".format(file_type, image_url))
                 return False
-            elif file_type in ["jpg", "jpeg", "png", "bmp", "webp"]:
+            elif file_type in ["jpg", "jpeg", "png", "bmp", "webp", 'gif']:
                 if len(file_name) >= 200:
                     print("Truncating:  {}".format(file_name))
                     file_name = file_name[:200]
