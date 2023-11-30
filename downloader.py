@@ -67,9 +67,15 @@ def download_image(
                 image_url, headers=headers, timeout=timeout, proxies=proxies
             )
             
-            # TODO: handle 429 Too Many Requests
-            # TODO: handle 404 not found (don't even save the content)
-            # TODO: handle 403 Forbidden (don't even save the content)
+            # TODO: handle 429 Too Many Requests, set a timer to slow down request frequency
+            # handle 401 Unauthorized (don't even save the content)
+            # handle 404 not found (don't even save the content)
+            # handle 403 Forbidden (don't even save the content)
+            
+            if response.status_code in [ 404,403,401 ]:
+                print("## Err: STATUS CODE({})  {}".format(response.status_code, image_url))
+                return False
+            
             with open(file_path, "wb") as f:
                 f.write(response.content)
             response.close()
