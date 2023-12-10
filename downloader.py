@@ -4,6 +4,7 @@
 # Email: sczhengyabin@hotmail.com
 
 from __future__ import print_function
+from urllib.parse import unquote
 
 import shutil
 import imghdr
@@ -22,6 +23,7 @@ headers = {
 }
 
 # additional checks for imghdr.what()
+
 def test_html(h, f):
     if b"<html" in h:
         return "html"
@@ -45,6 +47,14 @@ def test_xml(h, f):
 
 imghdr.tests.append(test_xml)
 
+# imghdr checks for JFIF specifically, ignoring optional markers including metadata
+def test_jpg(h, f):
+    if (h[:3] == "\xff\xd8\xff"):
+        return "jpg"
+
+
+imghdr.tests.append(test_jpg)
+
 
 def download_image(
     image_url, dst_dir, file_name, timeout=20, proxy_type=None, proxy=None
@@ -56,13 +66,15 @@ def download_image(
             "https": proxy_type + "://" + proxy,
         }
 
+    file_name = unquote(file_name)
     response = None
     file_path = os.path.join(dst_dir, file_name)
     try_times = 0
     while True:
         try:
             try_times += 1
-            # = image_url = image_url.split('&amp;')[0] # https://github.com/pablobots/Image-Downloader/commit/5bdbe076589459b9d0c41a563b92993cac1a892e
+            # https://github.com/pablobots/Image-Downloader/commit/5bdbe076589459b9d0c41a563b92993cac1a892e
+            image_url = image_url.split('&amp;')[0] 
             response = requests.get(
                 image_url, headers=headers, timeout=timeout, proxies=proxies
             )
