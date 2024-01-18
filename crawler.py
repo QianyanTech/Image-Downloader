@@ -97,7 +97,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
     my_print("Click on each thumbnail image to get image url, may take a moment ...", quiet)
 
     retry_click = []
-    for i, elem in enumerate(thumb_elements):
+    for i, elem in enumerate(thumb_elements[:max_number]):
         try:
             if i != 0 and i % 50 == 0:
                 my_print("{} thumbnail clicked.".format(i), quiet)
