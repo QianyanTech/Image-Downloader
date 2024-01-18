@@ -97,7 +97,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
     my_print("Click on each thumbnail image to get image url, may take a moment ...", quiet)
 
     retry_click = []
-    for i, elem in enumerate(thumb_elements):
+    for i, elem in enumerate(thumb_elements[:max_number]):
         try:
             if i != 0 and i % 50 == 0:
                 my_print("{} thumbnail clicked.".format(i), quiet)
@@ -120,13 +120,13 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
     
     image_elements = driver.find_elements(By.CLASS_NAME, "islib")
     image_urls = list()
-    url_pattern = r"imgurl=\S*&amp;imgrefurl"
+    url_pattern = r"imgurl=\S*&amp;tbnid"
 
     for image_element in image_elements[:max_number]:
         outer_html = image_element.get_attribute("outerHTML")
         re_group = re.search(url_pattern, outer_html)
         if re_group is not None:
-            image_url = unquote(re_group.group()[7:-14])
+            image_url = unquote(re_group.group()[7:-10])
             image_urls.append(image_url)
     return image_urls
 
