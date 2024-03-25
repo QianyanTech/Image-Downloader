@@ -6,19 +6,17 @@
 
 from __future__ import print_function
 
-import re
-import time
-import sys
-import os
 import json
-import shutil
-
-from urllib.parse import unquote, quote
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-import requests
+import os
+import re
+import sys
+import time
 from concurrent import futures
+from urllib.parse import quote, unquote
+
+import requests
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 g_headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -401,7 +399,6 @@ def crawl_image_urls(
 
     if browser != "api":
         browser = str.lower(browser)
-        chrome_path = shutil.which("chromedriver")
         chrome_options = webdriver.ChromeOptions()
         if "headless" in browser:
             chrome_options.add_argument("headless")
@@ -413,9 +410,8 @@ def crawl_image_urls(
         chrome_options.add_argument("--ignore-certificate-errors")
 
         # driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
-        service = Service(executable_path=chrome_path)
+        service = webdriver.ChromeService()
         driver = webdriver.Chrome(service=service, options=chrome_options)
-
         if engine == "Google":
             driver.set_window_size(1920, 1080)
             driver.get(query_url)
