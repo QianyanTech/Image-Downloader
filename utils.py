@@ -2,6 +2,7 @@
 # author: Yabin Zheng
 # Email: sczhengyabin@hotmail.com
 
+import chromedriver_autoinstaller
 
 def gen_valid_dir_name_for_keywords(keywords):
     keep = ["-", "_", "."]
