@@ -1,5 +1,4 @@
 """ Crawl image urls from image search engine. """
-
 # -*- coding: utf-8 -*-
 # author: Yabin Zheng
 # Email: sczhengyabin@hotmail.com
@@ -21,7 +20,8 @@ from selenium.webdriver.common.by import By
 g_headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "Proxy-Connection": "keep-alive",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
     "Accept-Encoding": "gzip, deflate, sdch",
     # 'Connection': 'close',
 }
@@ -130,7 +130,7 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
 
     image_elements = driver.find_elements(By.CLASS_NAME, "islib")
     image_urls = list()
-    url_pattern = r"imgurl=\S*&amp;imgrefurl"  # url_pattern = r"imgurl=(.*?)&amp;"
+    url_pattern = r"imgurl=\S*&amp;imgrefurl"
 
     for image_element in image_elements[:max_number]:
         outer_html = image_element.get_attribute("outerHTML")
@@ -365,7 +365,6 @@ def crawl_image_urls(
     :param browser: browser to use when crawl image urls
     :return: list of scraped image urls
     """
-
     # Validate engine name
     if engine not in ["Google", "Baidu", "Bing"]:
         raise Exception(f"Unknown engine name: {engine}")
@@ -400,14 +399,13 @@ def crawl_image_urls(
     if browser != "api":
         browser = str.lower(browser)
         chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--ignore-certificate-errors")
         if "headless" in browser:
             chrome_options.add_argument("headless")
         if proxy is not None and proxy_type is not None:
             chrome_options.add_argument(
                 "--proxy-server={}://{}".format(proxy_type, proxy)
             )
-
-        chrome_options.add_argument("--ignore-certificate-errors")
 
         # driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
         service = webdriver.ChromeService()
@@ -424,8 +422,7 @@ def crawl_image_urls(
             driver.set_window_size(10000, 7500)
             driver.get(query_url)
             image_urls = baidu_image_url_from_webpage(driver)
-
-        # driver.close() # just closes the window.  quit() does much more cleanup
+        # driver.close() just closes the window. quit() does much more cleanup
         driver.quit()
     else:  # api
         if engine == "Baidu":

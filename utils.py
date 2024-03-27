@@ -72,3 +72,12 @@ def gen_keywords_list_from_str(keywords_str, sep=","):
 def gen_keywords_list_from_file(filepath):
     with open(filepath, "r", encoding="utf-8") as f:
         return f.readlines()
+
+def resolve_dependencies(driver=str):
+    if "chrome" in driver:
+        print("Checking Google Chrome and chromedriver ...")
+        driver_path = chromedriver_autoinstaller.install()
+        if not driver_path:
+            return False
+        print("OK.")
+    return True

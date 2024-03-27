@@ -48,22 +48,20 @@ def test_xml(h, f):
 imghdr.tests.append(test_xml)
 
 # imghdr checks for JFIF specifically, ignoring optional markers including metadata
-def test_jpg(h, f):
+def test_jpg2(h, f):
     if (h[:3] == "\xff\xd8\xff"):
         return "jpg"
 
 
-imghdr.tests.append(test_jpg)
+imghdr.tests.append(test_jpg2)
 
 
-def download_image(
-    image_url, dst_dir, file_name, timeout=20, proxy_type=None, proxy=None
-):
+def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, proxy=None):
     proxies = None
     if proxy_type is not None:
         proxies = {
             "http": proxy_type + "://" + proxy,
-            "https": proxy_type + "://" + proxy,
+            "https": proxy_type + "://" + proxy
         }
 
     file_name = unquote(file_name)
@@ -73,8 +71,10 @@ def download_image(
     while True:
         try:
             try_times += 1
+
             # https://github.com/pablobots/Image-Downloader/commit/5bdbe076589459b9d0c41a563b92993cac1a892e
-            image_url = image_url.split('&amp;')[0] 
+            image_url = image_url.split('&amp;')[0]
+
             response = requests.get(
                 image_url, headers=headers, timeout=timeout, proxies=proxies
             )
@@ -139,15 +139,7 @@ def download_image(
             break
 
 
-def download_images(
-    image_urls,
-    dst_dir,
-    file_prefix="img",
-    concurrency=50,
-    timeout=20,
-    proxy_type=None,
-    proxy=None,
-):
+def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, timeout=20, proxy_type=None, proxy=None):
     """
     Download image according to given urls and automatically rename them in order.
     :param timeout:
