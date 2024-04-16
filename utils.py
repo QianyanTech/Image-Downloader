@@ -13,7 +13,7 @@ def gen_valid_dir_name_for_keywords(keywords):
 class AppConfig(object):
     def __init__(self):
         self.engine = "Google"
-        
+
         self.driver = "chrome_headless"
 
         self.keywords = ""
@@ -33,7 +33,7 @@ class AppConfig(object):
 
     def to_command_paras(self):
         str_paras = ""
- 
+
         str_paras += ' -e ' + self.engine
 
         str_paras += ' -d ' + self.driver
@@ -72,8 +72,9 @@ def gen_keywords_list_from_file(filepath):
 def resolve_dependencies(driver=str):
     if "chrome" in driver:
         print("Checking Google Chrome and chromedriver ...")
-        driver_path = chromedriver_autoinstaller.install()
-        if not driver_path:
-            return False
+        # if you have installed chronmium/chrome and chromedriver of the same version and still get an error, you can try commenting out the following three lines.
+        # driver_path = chromedriver_autoinstaller.install()
+        # if not driver_path:
+        #     return False
         print("OK.")
     return True
