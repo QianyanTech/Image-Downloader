@@ -6,3 +6,4 @@ images
 download_images
 build
 dist
+.DS_Store

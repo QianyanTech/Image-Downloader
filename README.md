@@ -1,3 +1,7 @@
+Commit 848cd37 uses exclusive mode, which fails if a file exists.  It seems like the best way to check, to avoid a race condition.  This is to avoid overwriting any file.
+
+The remainder of this readme is the original.
+
 # Image Downloader
 
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
